@@ -164,15 +164,23 @@
     loadStructure();
   };
 
-  function loadStructure() {
-    fetch(`${API_URL}?action=getStructure`)
+ function loadStructure() {
+    fetch(`${API_URL}?action=getStructure`, { redirect: 'follow' })
       .then(res => res.json())
       .then(res => {
+        if (!Array.isArray(res) || res.length === 0) {
+          console.warn("Dati vuoti ricevuti dall'API Google Sheet");
+          loadStructureFromCache();
+          return;
+        }
         configStructure = res;
         isDataLoaded = true;
         localStorage.setItem('swan_structure_cache', JSON.stringify(res));
       })
-      .catch(() => loadStructureFromCache());
+      .catch(err => {
+        console.error("Errore fetch API:", err);
+        loadStructureFromCache();
+      });
   }
 
   function loadStructureFromCache() {
