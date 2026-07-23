@@ -23,7 +23,7 @@
     .page-hidden-down { transform: translateY(100%); }
     .page-visible { transform: translateY(0); }
 
-    .container { width: 95%; max-width: 1100px; margin: 40px auto; padding: 40px; background: white; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.04); }
+    .container { width: 95%; max-width: 1100px; margin: 40px auto; padding: 40px; background: white; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.04); box-sizing: border-box; }
 
     .btn-main { padding: 16px 32px; border-radius: 12px; border: none; background: var(--primary); color: white; font-weight: 800; font-size: 1rem; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(42,133,168,0.3); }
     .btn-main:hover { transform: translateY(-2px); }
@@ -85,7 +85,62 @@
     .success-id { font-size: 3.5rem; font-weight: 800; color: var(--primary); margin: 20px 0; background: #F1F5F9; padding: 20px; border-radius: 12px; }
 
     #offline-banner { display: none; position: fixed; top: 0; left: 0; width: 100%; background: #EF4444; color: white; text-align: center; padding: 6px; font-weight: 800; font-size: 0.8rem; z-index: 100000; }
-  </style>
+
+    /* ==========================================
+       OTTIMIZZAZIONE SMARTPHONE / MOBILE RESPONSIVE
+       ========================================== */
+    @media screen and (max-width: 768px) {
+      .container { 
+        width: 98% !important; 
+        margin: 10px auto !important; 
+        padding: 15px !important; 
+        border-radius: 16px !important; 
+      }
+
+      /* I 3 campi in alto passano da 3 colonne a 1 colonna stacked */
+      .grid-3 { 
+        grid-template-columns: 1fr !important; 
+        gap: 12px !important; 
+      }
+
+      /* Riga ERP globale adattata per lo schermo stretto */
+      .erp-global-row { 
+        flex-direction: column !important; 
+        align-items: flex-start !important; 
+        gap: 10px !important; 
+        padding: 15px !important; 
+      }
+
+      /* Riduzione padding Aree e Intestazioni */
+      .area-header { padding: 15px !important; }
+      .area-header h2 { font-size: 1rem !important; }
+      .area-inner { padding: 12px 8px !important; }
+      .sub-menu-container { padding-left: 8px !important; }
+
+      /* Riga della singola Funzione: si adatta senza tagli */
+      .func-row-main { 
+        flex-direction: column !important; 
+        align-items: flex-start !important; 
+        gap: 10px !important; 
+        padding: 10px !important; 
+      }
+
+      .func-controls { 
+        width: 100% !important; 
+        justify-content: space-between !important; 
+        flex-wrap: wrap !important; 
+      }
+
+      .select-level { font-size: 0.8rem !important; padding: 4px 8px !important; }
+      
+      /* Compattazione barra dei pulsanti in basso */
+      .bottom-bar { padding: 12px !important; }
+      .btn-main { width: 100% !important; padding: 14px !important; box-sizing: border-box; }
+      
+      /* ID di successo scalato per non sbordare */
+      .success-id { font-size: 1.8rem !important; padding: 12px !important; word-break: break-all; }
+    }
+</style>
 </head>
 <body>
 
