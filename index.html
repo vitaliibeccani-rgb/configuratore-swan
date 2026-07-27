@@ -1026,32 +1026,43 @@
   }
 
   function doRecall() {
-    const code = document.getElementById('recall-input').value.toUpperCase().trim();
-    if(!code) {
-      alert("Inserisci un codice valido.");
-      return;
-    }
+  // .trim() rimuove gli spazi automatici inseriti dalle tastiere mobile
+  const code = document.getElementById('recall-input').value.toUpperCase().replace(/\s+/g, '');
+  
+  if(!code) {
+    alert("Inserisci un codice valido.");
+    return;
+  }
 
-    fetch(`${API_URL}?action=loadConfigByCode&code=${encodeURIComponent(code)}`, { redirect: 'follow' })
-      .then(res => res.json())
-      .then(res => {
-        if(!res || res.error) { alert("ID non trovato."); return; }
-        
-        navTo('main-app', 'up');
-        buildUI();
-        setTimeout(() => {
-          applyDataToForm(res);
-          document.getElementById('nome').readOnly = true;
-          document.getElementById('azienda').readOnly = true;
+  // Aggiungiamo il timestamp per evitare che il telefono usi una vecchia risposta in cache
+  const fetchUrl = `${API_URL}?action=loadConfigByCode&code=${encodeURIComponent(code)}&_t=${new Date().getTime()}`;
+
+  fetch(fetchUrl, { method: 'GET' })
+    .then(res => res.json())
+    .then(res => {
+      if(!res || res.error) { 
+        alert("ID non trovato. Verifica di aver inserito correttamente il codice."); 
+        return; 
+      }
+      
+      navTo('main-app', 'up');
+      buildUI();
+      
+      setTimeout(() => {
+        applyDataToForm(res);
+        document.getElementById('nome').readOnly = true;
+        document.getElementById('azienda').readOnly = true;
+        if(document.getElementById('compilatore')) {
           document.getElementById('compilatore').value = res.compilatore || '';
           document.getElementById('compilatore').readOnly = true;
-        }, 600);
-      })
-      .catch(err => {
-        console.error("Errore recupero dati:", err);
-        alert("Errore durante il recupero della configurazione.");
-      });
-  }
+        }
+      }, 600);
+    })
+    .catch(err => {
+      console.error("Errore recupero dati:", err);
+      alert("Errore durante il recupero della configurazione. Controlla la connessione internet.");
+    });
+}
 
   function toggleDrawer(open) {
     const overlay = document.getElementById('drawer-overlay');
