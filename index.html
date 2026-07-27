@@ -61,7 +61,7 @@
         z-index: 100000; 
     }
 
-    /* Pages transition framework (CORRETTO PER MOBILE OVERFLOW) */
+    /* Pages transition framework (ISOLAMENTO PERFETTO SCHERMATE MOBILE) */
     .page { 
         position: absolute; 
         top: 0; 
@@ -70,7 +70,7 @@
         height: 100%; 
         background: var(--bg); 
         transition: transform 0.5s cubic-bezier(0.85, 0, 0.15, 1), visibility 0.5s; 
-        display: none; /* Rimuove completamente le pagine inattive dal rendering mobile */
+        display: none; 
         flex-direction: column; 
         overflow-y: auto; 
         -webkit-overflow-scrolling: touch;
@@ -96,27 +96,19 @@
     }
 
     /* ==========================================
-       CONTAINER LOGO ISOLATO & PULITO
+       GESTIONE LOGO PULITA (SENZA DIV EXTRA)
        ========================================== */
-    .logo-container {
+    .app-logo {
+        display: block !important;
+        margin: 0 auto 15px auto !important;
+        max-width: 100% !important;
+        height: auto !important;
+        max-height: 65px !important;
+        object-fit: contain !important;
         background-color: #FFFFFF !important;
-        border-radius: 12px;
-        padding: 12px 20px;
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        margin: 0 auto 15px auto;
-        max-width: 280px;
-    }
-
-    .app-logo, .logo-container img {
-        display: block;
-        max-width: 100%;
-        height: auto;
-        max-height: 60px;
-        object-fit: contain;
-        margin: 0 auto;
+        padding: 8px 16px !important;
+        border-radius: 10px !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
     }
 
     /* ==========================================
