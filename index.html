@@ -69,13 +69,29 @@
         width: 100%; 
         height: 100%; 
         background: var(--bg); 
-        transition: transform 0.5s cubic-bezier(0.85, 0, 0.15, 1); 
-        display: flex; 
+        transition: transform 0.5s cubic-bezier(0.85, 0, 0.15, 1), visibility 0.5s; 
+        display: none; /* RIMUOVE LA PAGINA DAL FLUSSO SU MOBILE */
         flex-direction: column; 
+        overflow-y: auto; /* Permette lo scroll interno se i contenuti superano lo schermo */
+        -webkit-overflow-scrolling: touch;
     }
-    .page-hidden-up { transform: translateY(-100%); }
-    .page-hidden-down { transform: translateY(100%); }
-    .page-visible { transform: translateY(0); }
+    .page-hidden-up { 
+        transform: translateY(-100%); 
+        display: none !important; /* Forza la scomparsa completa */
+        visibility: hidden;
+    }
+    .page-hidden-down { 
+        transform: translateY(100%); 
+        display: none !important; /* Forza la scomparsa completa */
+        visibility: hidden;
+    }
+
+    /* Pagina Visibile */
+    .page-visible { 
+        transform: translateY(0); 
+        display: flex !important; /* La rende attiva e visibile */
+        visibility: visible;
+    }
 
     /* Stili dedicati per i Loghi */
     .app-logo {
@@ -834,11 +850,17 @@
   }
 
   function navTo(targetId, direction) {
-    document.querySelectorAll('.page').forEach(p => {
-      if(p.id === targetId) p.className = 'page page-visible';
-      else p.className = direction === 'up' ? 'page page-hidden-up' : 'page page-hidden-down';
-    });
-  }
+  document.querySelectorAll('.page').forEach(p => {
+    if (p.id === targetId) {
+      // 1. Attiva la pagina di destinazione
+      p.className = 'page page-visible';
+      p.scrollTop = 0; // Riporta lo scroll in cima
+    } else {
+      // 2. Nasconde completamente le altre pagine
+      p.className = direction === 'up' ? 'page page-hidden-up' : 'page page-hidden-down';
+    }
+  });
+}
 
   function toggleRecallBox() {
     const box = document.getElementById('recall-box');
