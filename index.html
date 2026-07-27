@@ -359,9 +359,12 @@
   function startNewConfig() {
     if (!isDataLoaded) { alert("Caricamento moduli in corso..."); return; }
     navTo('main-app', 'up');
-    document.getElementById('swan-counter-widget').style.display = 'block';
+    
+    // Resetta la Dock e il Drawer ai valori iniziali di partenza
+    updateTagliaUI('S', '0.0', '--/--/----');
+    
     buildUI(); 
-  }
+}
 
   function resetAndHome() {
     localStorage.removeItem('swan_draft');
@@ -399,32 +402,17 @@
     });
 
     let taglia = "S";
-    let colore = "#10B981";
     if (giorniTotali > 10 && giorniTotali <= 25) {
       taglia = "M";
-      colore = "#F59E0B";
     } else if (giorniTotali > 25) {
       taglia = "L";
-      colore = "#EF4444";
     }
 
     const dataConsegna = calcolaDataMilestone(giorniTotali);
 
-    const widget = document.getElementById('swan-counter-widget');
-    if (widget) {
-      widget.style.minWidth = "260px"; 
-      widget.innerHTML = `
-        <div style="background: ${colore}; color: white; padding: 22px; border-radius: 20px; font-weight: bold; box-shadow: 0 15px 35px rgba(0,0,0,0.15); font-family: 'Inter', sans-serif;">
-          <p style="margin: 0; font-size: 12px; text-transform: uppercase;">Stima Configurazione</p>
-          <p style="margin: 6px 0; font-size: 32px; font-weight: 800;">Taglia ${taglia}</p>
-          <p style="margin: 10px 0 0 0; font-size: 15px;">Sforzo: <strong>${giorniTotali.toFixed(1)}</strong> gg u.</p>
-          <p style="margin: 12px 0 0 0; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 10px;">
-            Go-Live: <strong>${dataConsegna}</strong>
-          </p>
-        </div>
-      `;
-    }
-  }
+    // UNICA NUOVA RIGA: Passa i dati alla nuova Dock in basso e al Drawer
+    updateTagliaUI(taglia, giorniTotali.toFixed(1), dataConsegna);
+}
 
   function calcolaDataMilestone(giorniLavorativi) {
     let dataCorrente = new Date(2026, 6, 21);
