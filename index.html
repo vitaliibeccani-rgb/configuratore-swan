@@ -41,7 +41,7 @@
         height: 100%; 
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
         background: var(--bg); 
-        overflow: hidden; /* Blocca lo scroll del body principale */
+        overflow: hidden; 
         color: #334155; 
     }
 
@@ -83,8 +83,8 @@
     .sheet-viewport {
         flex: 1;
         width: 100%;
-        overflow-y: auto; /* Scroll indipendente del foglio */
-        padding: 20px 15px 120px 15px; /* Spazio extra in fondo per non coprire nulla */
+        overflow-y: auto; 
+        padding: 20px 15px 120px 15px; 
         -webkit-overflow-scrolling: touch;
     }
 
@@ -134,9 +134,7 @@
         cursor: not-allowed; 
     }
 
-    /* ==========================================
-       AREAS & MENUS STRUCTURE
-       ========================================== */
+    /* ERP Global Container */
     .erp-global-row { 
         background: #F8FAFC; 
         padding: 20px; 
@@ -148,6 +146,7 @@
         gap: 20px; 
     }
 
+    /* Areas & Menus Structure */
     .area-box { 
         margin-bottom: 20px; 
         border: 2px solid var(--border); 
@@ -180,11 +179,11 @@
         max-height: 15000px; 
     }
     .area-inner { 
-        padding: 25px; 
+        padding: 20px 15px; 
     }
 
     .menu-box { 
-        margin-bottom: 30px; 
+        margin-bottom: 25px; 
     }
     .menu-header { 
         display: flex; 
@@ -203,7 +202,7 @@
 
     .sub-menu-container { 
         margin-bottom: 15px; 
-        padding-left: 12px; 
+        padding-left: 8px; 
         border-left: 3px solid #E2E8F0; 
     }
     .sub-menu-header { 
@@ -213,7 +212,7 @@
         background: #F8FAFC; 
         padding: 6px 12px; 
         border-radius: 6px; 
-        margin-bottom: 8px; 
+        margin-bottom: 10px; 
     }
     .sub-menu-title { 
         font-weight: 800; 
@@ -237,30 +236,79 @@
         color: #FFFFFF; 
     }
 
-    /* Function Rows */
+    /* ==========================================
+       SCHEDE FUNZIONALITÀ (UX / CARDS)
+       ========================================== */
     .func-row-wrapper { 
-        border-bottom: 1px solid #F1F5F9; 
-        padding: 8px 0; 
+        background: #FFFFFF;
+        border: 2px solid #E2E8F0;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        padding: 12px 14px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        user-select: none;
     }
-    .func-row-main { 
-        display: flex; 
-        align-items: center; 
-        gap: 12px; 
-        padding: 6px 10px; 
-        border-radius: 8px; 
+
+    /* Stato Selezionato */
+    .func-row-wrapper.is-selected {
+        border-color: var(--primary);
+        background: #F0F9FF;
+        box-shadow: 0 4px 12px rgba(42, 133, 168, 0.08);
     }
-    .func-row-main.active { 
-        background: #F0F9FF; 
+
+    .func-row-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
     }
+
+    .func-title-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+    }
+
+    /* Custom Checkmark (Sostituisce la checkbox standard) */
+    .custom-check {
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        border: 2px solid #CBD5E1;
+        background: #FFFFFF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: transparent;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    .func-row-wrapper.is-selected .custom-check {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #FFFFFF;
+    }
+
     .func-name { 
-        flex: 1; 
-        font-weight: 600; 
-        font-size: 0.9rem; 
+        font-weight: 700; 
+        font-size: 0.88rem; 
+        color: var(--dark);
+        line-height: 1.3;
     }
-    .func-controls { 
-        display: flex; 
-        align-items: center; 
-        gap: 10px; 
+
+    /* Controlli secondari (Note, View, ERP) */
+    .func-sub-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 10px;
+        padding-top: 8px;
+        border-top: 1px dashed #E2E8F0;
     }
 
     .select-level { 
@@ -270,17 +318,17 @@
         font-weight: 700; 
         color: var(--dark); 
         background: #FFFFFF; 
-        font-size: 0.8rem; 
+        font-size: 0.75rem; 
     }
 
     /* Notes System */
     .btn-note { 
         position: relative; 
-        padding: 5px 10px; 
+        padding: 4px 10px; 
         border-radius: 6px; 
-        border: 1.5px solid #CBD5E1; 
-        background: #FFFFFF; 
-        font-weight: 800; 
+        border: 1px solid #CBD5E1; 
+        background: #F8FAFC; 
+        font-weight: 700; 
         cursor: pointer; 
         font-size: 0.7rem; 
         color: #64748B; 
@@ -292,10 +340,10 @@
     }
     .badge-note { 
         position: absolute; 
-        top: -4px; 
-        right: -4px; 
-        width: 8px; 
-        height: 8px; 
+        top: -3px; 
+        right: -3px; 
+        width: 7px; 
+        height: 7px; 
         background: var(--danger); 
         border-radius: 50%; 
         display: none; 
@@ -303,32 +351,32 @@
     .note-container { 
         width: 100%; 
         display: none; 
-        padding: 8px 10px 0 10px; 
+        padding-top: 8px; 
     }
     .note-container textarea { 
         width: 100%; 
-        padding: 10px; 
+        padding: 8px 10px; 
         border-radius: 8px; 
         border: 1.5px solid var(--warning-border); 
         background: #FFFDE7; 
         font-family: inherit; 
-        font-size: 0.85rem; 
+        font-size: 0.82rem; 
     }
 
-    /* Switches */
+    /* ERP Switches */
     .erp-toggle-wrapper { 
         display: none; 
         align-items: center; 
         gap: 6px; 
         background: #EDF2F7; 
-        padding: 4px 8px; 
+        padding: 3px 8px; 
         border-radius: 6px; 
     }
     .switch { 
         position: relative; 
         display: inline-block; 
-        width: 30px; 
-        height: 18px; 
+        width: 28px; 
+        height: 16px; 
     }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider { 
@@ -336,7 +384,7 @@
         background-color: #CBD5E1; transition: .3s; border-radius: 20px; 
     }
     .slider:before { 
-        position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; 
+        position: absolute; content: ""; height: 10px; width: 10px; left: 3px; bottom: 3px; 
         background-color: #FFFFFF; transition: .3s; border-radius: 50%; 
     }
     input:checked + .slider { background-color: var(--primary); }
@@ -367,43 +415,44 @@
     }
 
     /* ==========================================
-       BLOCCO 2: DOCK FLUTTUANTE (PRIMO PIANO)
+       BLOCCO 2: CONTROL DOCK FLUTTUANTE (SNELLA MOBILE)
        ========================================== */
     .master-dock-layer {
         position: fixed;
         bottom: 0;
         left: 0;
         width: 100%;
-        padding: 12px 20px;
-        z-index: 99999; /* In primissimo piano sopra tutto */
-        pointer-events: none; /* Lascia passare i click attorno alla barra */
+        padding: 8px 12px 18px 12px; 
+        z-index: 99999;
+        pointer-events: none;
         display: flex;
         justify-content: center;
     }
 
     .dock-container {
-        pointer-events: auto; /* Riattiva i click sulla barra */
+        pointer-events: auto;
         width: 100%;
         max-width: 960px;
-        background: rgba(15, 23, 42, 0.92);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
+        background: rgba(15, 23, 42, 0.94);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
         border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 20px;
-        padding: 10px 18px;
+        border-radius: 18px;
+        padding: 6px 10px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        gap: 10px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
     }
 
     .dock-taglia-btn { 
         display: flex; 
         align-items: center; 
-        gap: 12px; 
+        gap: 8px; 
         background: rgba(255, 255, 255, 0.08); 
-        padding: 6px 14px; 
-        border-radius: 30px; 
+        padding: 5px 10px; 
+        border-radius: 12px; 
         cursor: pointer; 
         color: #FFFFFF; 
     }
@@ -411,18 +460,28 @@
         background: var(--success); 
         color: #FFFFFF; 
         font-weight: 800; 
-        padding: 4px 10px; 
-        border-radius: 12px; 
-        font-size: 0.85rem; 
+        padding: 4px 8px; 
+        border-radius: 8px; 
+        font-size: 0.8rem; 
+        line-height: 1;
     }
     .dock-info { 
-        font-size: 0.85rem; 
-        font-weight: 600; 
+        font-size: 0.8rem; 
+        font-weight: 700; 
         color: #E2E8F0; 
+        white-space: nowrap;
     }
     .dock-arrow { 
-        font-size: 0.75rem; 
+        font-size: 0.7rem; 
         color: #94A3B8; 
+    }
+
+    .dock-container .btn-main {
+        padding: 10px 16px !important;
+        font-size: 0.82rem !important;
+        border-radius: 12px !important;
+        white-space: nowrap;
+        box-shadow: none !important;
     }
 
     /* Drawer Modal Overlay & Card */
@@ -480,12 +539,13 @@
 
     /* Mobile Adaptations */
     @media screen and (max-width: 768px) {
-        .document-card { padding: 20px 15px !important; }
+        .document-card { padding: 20px 12px !important; }
         .grid-3 { grid-template-columns: 1fr !important; gap: 12px !important; }
-        .func-row-main { flex-direction: column !important; align-items: flex-start !important; }
-        .func-controls { width: 100% !important; justify-content: space-between !important; }
-        .master-dock-layer { padding: 8px 10px !important; }
-        .dock-container { padding: 8px 12px !important; }
+        .master-dock-layer { padding: 8px 10px 16px 10px !important; }
+        .dock-container { padding: 6px 8px !important; }
+        .dock-taglia-btn { padding: 4px 8px !important; }
+        .dock-info { font-size: 0.75rem !important; }
+        .dock-container .btn-main { padding: 8px 12px !important; font-size: 0.78rem !important; }
     }
   </style>
 </head>
@@ -667,7 +727,10 @@
       if (el) {
         if (el.type === 'checkbox') {
           el.checked = data[key];
-          if (key.startsWith('f_')) toggleActive(el);
+          if (key.startsWith('f_')) {
+            const card = el.closest('.func-row-wrapper');
+            if(card) card.classList.toggle('is-selected', el.checked);
+          }
         } else {
           el.value = data[key];
           if (key.startsWith('n_')) checkNote(el);
@@ -826,25 +889,44 @@
 
   function renderFunctionRow(f, isHeaderStyle) {
     let levelHTML = (f.tipo === "speciale") 
-      ? `<select name="l_${f.funzione}" class="select-level"><option value="VIEW">VIEW</option><option value="CHECK">CHECK</option><option value="FULL">FULL</option></select>`
+      ? `<select name="l_${f.funzione}" class="select-level" onclick="event.stopPropagation()"><option value="VIEW">VIEW</option><option value="CHECK">CHECK</option><option value="FULL">FULL</option></select>`
       : `<input type="hidden" name="l_${f.funzione}" value="VIEW">`;
 
     return `
-      <div class="func-row-wrapper" style="${isHeaderStyle ? 'margin-bottom:20px; border-bottom:2px solid var(--primary); padding-bottom:10px;' : ''}">
-        <div class="func-row-main">
-          <input type="checkbox" name="f_${f.funzione}" class="func-checkbox" onchange="toggleActive(this); autoSave();">
-          <div class="func-name" style="${isHeaderStyle ? 'font-size:1.05rem; color:var(--primary); font-weight:800;' : ''}">${f.funzione}</div>
-          <div class="func-controls">
-            <button type="button" class="btn-note" onclick="toggleNote(this)">NOTE<div class="badge-note"></div></button>
-            ${levelHTML}
-            <div class="erp-toggle-wrapper">
-              <span style="font-size:0.7rem; font-weight:800; color: var(--primary)">ERP</span>
-              <label class="switch"><input type="checkbox" name="e_${f.funzione}" onchange="autoSave();"><span class="slider"></span></label>
-            </div>
+      <div class="func-row-wrapper" onclick="toggleCardSelection(this, 'f_${f.funzione}')">
+        <div class="func-row-header">
+          <div class="func-title-group">
+            <div class="custom-check">✓</div>
+            <input type="checkbox" name="f_${f.funzione}" class="func-checkbox" style="display:none;" onchange="autoSave();">
+            <span class="func-name">${f.funzione}</span>
           </div>
         </div>
-        <div class="note-container"><textarea name="n_${f.funzione}" rows="2" placeholder="Note..." oninput="checkNote(this); autoSave();"></textarea></div>
+
+        <div class="func-sub-controls" onclick="event.stopPropagation()">
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button type="button" class="btn-note" onclick="toggleNote(this)">+ NOTE <div class="badge-note"></div></button>
+            ${levelHTML}
+          </div>
+
+          <div class="erp-toggle-wrapper">
+            <span style="font-size:0.68rem; font-weight:800; color: var(--primary)">ERP</span>
+            <label class="switch"><input type="checkbox" name="e_${f.funzione}" onchange="autoSave();"><span class="slider"></span></label>
+          </div>
+        </div>
+
+        <div class="note-container" onclick="event.stopPropagation()">
+          <textarea name="n_${f.funzione}" rows="2" placeholder="Aggiungi una nota..." oninput="checkNote(this); autoSave();"></textarea>
+        </div>
       </div>`;
+  }
+
+  function toggleCardSelection(card, inputName) {
+    const cb = card.querySelector(`input[name="${inputName}"]`);
+    if(cb) {
+      cb.checked = !cb.checked;
+      card.classList.toggle('is-selected', cb.checked);
+      autoSave();
+    }
   }
 
   function toggleArea(h) {
@@ -855,16 +937,22 @@
 
   function selectAll(id, btn) {
     const container = document.getElementById(id);
-    const cbs = container.querySelectorAll('.func-checkbox');
-    if(!cbs.length) return;
-    const target = !cbs[0].checked;
-    cbs.forEach(cb => { cb.checked = target; toggleActive(cb); });
-    btn.classList.toggle('active', target);
-    autoSave();
-  }
+    const wrappers = container.querySelectorAll('.func-row-wrapper');
+    if(!wrappers.length) return;
+    
+    const firstCb = wrappers[0].querySelector('.func-checkbox');
+    const targetState = !firstCb.checked;
 
-  function toggleActive(cb) {
-    cb.closest('.func-row-main').classList.toggle('active', cb.checked);
+    wrappers.forEach(w => {
+      const cb = w.querySelector('.func-checkbox');
+      if(cb) {
+        cb.checked = targetState;
+        w.classList.toggle('is-selected', targetState);
+      }
+    });
+
+    btn.classList.toggle('active', targetState);
+    autoSave();
   }
 
   function toggleNote(btn) {
