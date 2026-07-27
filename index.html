@@ -819,7 +819,7 @@
   }
 
   function calcolaDataMilestone(giorniLavorativi) {
-    let dataCorrente = new Date(2026, 6, 21);
+    let dataCorrente = new Date();
     let giorniAggiunti = 0;
     while (giorniAggiunti < giorniLavorativi) {
       dataCorrente.setDate(dataCorrente.getDate() + 1);
