@@ -77,6 +77,14 @@
     .page-hidden-down { transform: translateY(100%); }
     .page-visible { transform: translateY(0); }
 
+    /* Stili dedicati per i Loghi */
+    .app-logo {
+        display: block;
+        margin: 0 auto;
+        height: auto;
+        object-fit: contain;
+    }
+
     /* ==========================================
        BLOCCO 1: IL FOGLIO / DOCUMENTO (SECONDO PIANO)
        ========================================== */
@@ -271,7 +279,7 @@
         flex: 1;
     }
 
-    /* Custom Checkmark (Sostituisce la checkbox standard) */
+    /* Custom Checkmark */
     .custom-check {
         width: 22px;
         height: 22px;
@@ -415,7 +423,7 @@
     }
 
     /* ==========================================
-       BLOCCO 2: CONTROL DOCK FLUTTUANTE (SNELLA MOBILE)
+       BLOCCO 2: CONTROL DOCK FLUTTUANTE
        ========================================== */
     .master-dock-layer {
         position: fixed;
@@ -556,6 +564,9 @@
 <!-- LANDING PAGE -->
 <div id="landing-page" class="page page-visible">
   <div style="margin: auto; text-align: center; padding: 20px;">
+    <!-- LOGO 1: LANDING PAGE -->
+    <img src="https://drive.google.com/file/d/1UYvVTg8zwlKBMrA0hQca1xSvOABxhvDx/view?usp=drive_link" alt="SWAN Logo" class="app-logo" style="max-width: 220px; margin-bottom: 20px;">
+
     <h1 style="color: var(--dark); font-weight: 800; margin-bottom: 10px;">Configuratore SWAN</h1>
     <p style="color: #64748B; margin-bottom: 30px;">Piattaforma Gestione Moduli & Stima Progetto</p>
     
@@ -581,6 +592,9 @@
   <div class="sheet-viewport">
     <div class="document-card">
       <div class="header-form">
+        <!-- LOGO 2: INTESTAZIONE QUESTIONARIO -->
+        <img src="https://drive.google.com/file/d/1UYvVTg8zwlKBMrA0hQca1xSvOABxhvDx/view?usp=drive_link" alt="SWAN Logo" class="app-logo" style="max-width: 140px; margin-bottom: 15px;">
+
         <h2 style="font-weight: 800; text-transform: uppercase; color: var(--dark);">Configurazione Moduli</h2>
       </div>
 
@@ -648,6 +662,9 @@
 <!-- SUCCESS PAGE -->
 <div id="success-page" class="page page-hidden-down">
   <div style="margin: auto; text-align: center; padding: 20px;">
+    <!-- LOGO 3: SCHERMATA FINALE SUCCESS -->
+    <img src="https://drive.google.com/file/d/1UYvVTg8zwlKBMrA0hQca1xSvOABxhvDx/view?usp=drive_link" alt="SWAN Logo" class="app-logo" style="max-width: 160px; margin-bottom: 20px;">
+
     <h2 style="color: var(--dark);">Configurazione Salvata!</h2>
     <div class="success-id" id="final-id">----</div>
     <div id="info-success-box" style="margin: 20px auto; max-width: 500px; background: #EBF8FF; padding: 15px; border-radius: 12px; border: 2px solid #BEE3F8; color: #2B6CB0; font-weight: 600; font-size: 1.05rem;"></div>
