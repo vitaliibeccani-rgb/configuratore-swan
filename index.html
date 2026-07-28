@@ -508,19 +508,21 @@
        ========================================== */
     .drawer-overlay { 
         position: fixed; 
-        top: 0; left: 0; 
-        width: 100%; height: 100%; 
+        top: 0; 
+        left: 0; 
+        width: 100%; 
+        height: 100%; 
         background: rgba(0, 0, 0, 0.5); 
         backdrop-filter: blur(4px); 
-        display: none; /* Rimosso dal flusso se non attivo */
         opacity: 0; 
+        visibility: hidden; /* Nascosto senza bloccare le animazioni */
         pointer-events: none; 
-        transition: opacity 0.3s ease; 
+        transition: opacity 0.3s ease, visibility 0.3s ease; 
         z-index: 100000; 
     }
     .drawer-overlay.active { 
-        display: block !important;
         opacity: 1; 
+        visibility: visible;
         pointer-events: auto; 
     }
 
@@ -532,17 +534,16 @@
         background: #FFFFFF; 
         border-radius: 24px 24px 0 0; 
         padding: 24px; 
-        display: none; /* NASCOSTO COMPLETAMENTE SENZA CREARE SCROLL IN BASSO */
-        transform: translateY(100%);
-        transition: transform 0.3s ease-out; 
+        visibility: hidden; /* Non crea spazio per lo scroll in basso */
+        transform: translateY(100%); /* Parte completamente sotto lo schermo */
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s ease; 
         z-index: 100001; 
         box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.2); 
     }
     .drawer-card.active { 
-        display: block !important; 
-        transform: translateY(0);
+        visibility: visible;
+        transform: translateY(0); /* Sale verso l'alto con effetto elastico/fisarmonica */
     }
-
     .drawer-handle { 
         width: 40px; height: 5px; background: #E2E8F0; border-radius: 10px; margin: 0 auto 16px auto; 
     }
