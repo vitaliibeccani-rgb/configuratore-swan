@@ -128,10 +128,10 @@
         margin-bottom: 30px; 
     }
 
-    .grid-3 { 
+    .grid-4 { 
         display: grid; 
-        grid-template-columns: repeat(3, 1fr); 
-        gap: 20px; 
+        grid-template-columns: repeat(4, 1fr); 
+        gap: 15px; 
         margin-bottom: 20px; 
     }
 
@@ -569,7 +569,7 @@
     /* Mobile Adaptations */
     @media screen and (max-width: 768px) {
         .document-card { padding: 20px 12px !important; }
-        .grid-3 { grid-template-columns: 1fr !important; gap: 12px !important; }
+        .grid-4 { grid-template-columns: 1fr !important; gap: 12px !important; }
         .master-dock-layer { padding: 8px 10px 16px 10px !important; }
         .dock-container { padding: 6px 8px !important; }
         .dock-taglia-btn { padding: 4px 8px !important; }
@@ -622,10 +622,11 @@
       <form id="swanForm" onchange="autoSave()">
         <input type="hidden" id="config_id" name="config_id">
         
-        <div class="grid-3">
+        <div class="grid-4">
           <div class="field-group"><label>CLIENTE / AZIENDA</label><input type="text" id="azienda" name="azienda" class="input-premium"></div>
           <div class="field-group"><label>REFERENTE CLIENTE</label><input type="text" id="nome" name="nome" class="input-premium"></div>
           <div class="field-group"><label>COMPILATO DA</label><input type="text" id="compilatore" name="compilatore" class="input-premium" placeholder="Nome PM / Account"></div>
+          <div class="field-group"><label>EMAIL RECAP</label><input type="email" id="email" name="email" class="input-premium" placeholder="cliente@azienda.it" required></div>
         </div>
 
         <div class="erp-global-row">
