@@ -234,7 +234,7 @@
     </div>
   </div>
 
-  <!-- PAGINA 2: MENU DI SCELTA (HUB NAVIGAZIONE) -->
+  <!-- PAGINA 2: HUB NAVIGAZIONE -->
   <div id="hub-page" class="page">
     <div class="sheet-viewport">
       <div class="document-card">
@@ -249,7 +249,6 @@
           <h2 style="font-weight: 800; text-transform: uppercase; color: var(--dark);">Scegli da dove iniziare</h2>
         </div>
 
-        <!-- DATI ANAGRAFICI BASE -->
         <div class="grid-4" style="margin-bottom: 30px;">
           <div class="field-group"><label>CLIENTE / AZIENDA</label><input type="text" id="azienda" name="azienda" class="input-premium"></div>
           <div class="field-group"><label>REFERENTE CLIENTE</label><input type="text" id="nome" name="nome" class="input-premium"></div>
@@ -257,13 +256,12 @@
           <div class="field-group"><label>EMAIL RECAP</label><input type="email" id="email" name="email" class="input-premium" placeholder="cliente@azienda.it" required></div>
         </div>
 
-        <!-- I DUE BOTTONI DI SCELTA -->
         <div class="grid-2">
-          <div class="hub-card-btn" onclick="navTo('profilazione-page')">
+          <div class="hub-card-btn" onclick="openProfilazione()">
             <h3>📋 PROFILAZIONE</h3>
             <p>Compila i requisiti di settore, business model e integrazioni erp.</p>
           </div>
-          <div class="hub-card-btn" onclick="navTo('configurazione-page')">
+          <div class="hub-card-btn" onclick="openConfigurazione()">
             <h3>⚙️ CONFIGURAZIONE</h3>
             <p>Seleziona i moduli funzionali SWAN e definisci la stima di progetto.</p>
           </div>
@@ -272,13 +270,13 @@
     </div>
   </div>
 
-  <!-- PAGINA 3: SEZIONE PROFILAZIONE DINAMICA -->
+  <!-- PAGINA 3: PROFILAZIONE -->
   <div id="profilazione-page" class="page">
     <div class="sheet-viewport">
       <div class="document-card">
         <div class="nav-top-bar">
           <button type="button" class="btn-main btn-secondary" onclick="navTo('hub-page')">← Torna al Menu</button>
-          <button type="button" class="btn-main" onclick="navTo('configurazione-page')">Vai a Configurazione →</button>
+          <button type="button" class="btn-main" onclick="openConfigurazione()">Vai a Configurazione →</button>
         </div>
 
         <div class="header-form">
@@ -286,26 +284,23 @@
           <h2 style="font-weight: 800; text-transform: uppercase; color: var(--dark);">Profilazione Cliente</h2>
         </div>
 
-        <div id="profilazione-builder-container">
-          <!-- Qui verranno iniettati dinamicamente i campi scaricati dal foglio PROFILAZIONE -->
-          <p style="text-align: center; color: #64748B;">Caricamento opzioni di profilazione...</p>
-        </div>
+        <div id="profilazione-builder-container"></div>
 
         <div style="display: flex; justify-content: space-between; margin-top: 30px;">
           <button type="button" class="btn-main btn-outline" onclick="navTo('hub-page')">← Menu Principale</button>
-          <button type="button" class="btn-main" onclick="navTo('configurazione-page')">Prosegui a Configurazione Moduli →</button>
+          <button type="button" class="btn-main" onclick="openConfigurazione()">Prosegui a Configurazione Moduli →</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- PAGINA 4: SEZIONE CONFIGURAZIONE MODULI (TUTTE LE LOGICHE ESISTENTI) -->
+  <!-- PAGINA 4: CONFIGURAZIONE -->
   <div id="configurazione-page" class="page">
     <div class="sheet-viewport">
       <div class="document-card">
         <div class="nav-top-bar">
           <button type="button" class="btn-main btn-secondary" onclick="navTo('hub-page')">← Torna al Menu</button>
-          <button type="button" class="btn-main btn-outline" onclick="navTo('profilazione-page')">← Torna a Profilazione</button>
+          <button type="button" class="btn-main btn-outline" onclick="openProfilazione()">← Torna a Profilazione</button>
         </div>
 
         <div class="header-form">
@@ -342,7 +337,7 @@
 
 </form>
 
-<!-- DRAWER MODALE DETTAGLI -->
+<!-- DRAWER DETTAGLI -->
 <div class="drawer-overlay" id="drawer-overlay" onclick="toggleDrawer(false)"></div>
 <div class="drawer-card" id="drawer-card">
   <div class="drawer-handle"></div>
@@ -381,8 +376,12 @@
   const API_URL = "https://script.google.com/macros/s/AKfycbzBE_7yPlPqJSk99lxTGAjWs52_lGdTj4-xlVwMN7cYSOS4eq0YVfFqLzuF16TRNjg/exec"; 
 
   let configStructure = [];
-  let profilazioneStructure = [];
-  let isDataLoaded = false;
+  let profilazioneStructure = [
+    { campo: 'settore', etichetta: 'Settore Industriale', tipo: 'select', opzioni: 'Manifatturiero, Automotive, Food & Beverage, Pharma, Retail, Altro' },
+    { campo: 'business_model', etichetta: 'Business Model', tipo: 'select', opzioni: 'B2B, B2C, B2B2C, Distributori' },
+    { campo: 'erp_attuale', etichetta: 'ERP in Uso', tipo: 'text', opzioni: '' },
+    { campo: 'gestione_operativa', etichetta: 'Gestione Operativa', tipo: 'select', opzioni: 'Interna, Outsourcing, Mista' }
+  ];
 
   window.onload = () => {
     checkDraft();
@@ -391,17 +390,19 @@
   };
 
   function loadAllData() {
+    buildProfilazioneUI();
+
     fetch(`${API_URL}?action=getStructure`, { redirect: 'follow' })
       .then(res => res.json())
       .then(res => {
         if (res.moduli) configStructure = res.moduli;
         else if (Array.isArray(res)) configStructure = res;
         
-        if (res.profilazione) profilazioneStructure = res.profilazione;
+        if (res.profilazione && res.profilazione.length > 0) profilazioneStructure = res.profilazione;
 
-        isDataLoaded = true;
         localStorage.setItem('swan_structure_cache', JSON.stringify(res));
         buildProfilazioneUI();
+        buildUI();
       })
       .catch(err => {
         console.error("Errore download dati:", err);
@@ -416,18 +417,24 @@
       if (data.moduli) configStructure = data.moduli;
       else if (Array.isArray(data)) configStructure = data;
       if (data.profilazione) profilazioneStructure = data.profilazione;
-      isDataLoaded = true;
-      buildProfilazioneUI();
     }
+    buildProfilazioneUI();
+    buildUI();
+  }
+
+  function openProfilazione() {
+    buildProfilazioneUI();
+    navTo('profilazione-page');
+  }
+
+  function openConfigurazione() {
+    buildUI();
+    navTo('configurazione-page');
   }
 
   function buildProfilazioneUI() {
     const container = document.getElementById('profilazione-builder-container');
     if (!container) return;
-    if (!profilazioneStructure || profilazioneStructure.length === 0) {
-      container.innerHTML = `<p style="text-align:center; color:#64748B;">Nessuna voce di profilazione presente nel foglio Google Sheets.</p>`;
-      return;
-    }
 
     let html = '<div class="grid-2">';
     profilazioneStructure.forEach(item => {
@@ -509,7 +516,6 @@
   }
 
   function startNewConfig() {
-    if (!isDataLoaded) { alert("Caricamento configurazione in corso... Riprova tra un secondo."); return; }
     navTo('hub-page');
     updateTagliaUI('S', '0.0', '--/--/----');
     buildUI(); 
@@ -599,6 +605,13 @@
 
   function buildUI() {
     const container = document.getElementById('builder-container');
+    if (!container) return;
+
+    if (!configStructure || configStructure.length === 0) {
+      container.innerHTML = `<p style="text-align:center; color:#64748B; padding:20px;">Caricamento moduli in corso...</p>`;
+      return;
+    }
+
     container.innerHTML = ""; 
     const areas = {};
     configStructure.forEach(item => {
@@ -779,8 +792,7 @@
       .then(res => res.json())
       .then(res => {
         if(!res || res.error) { alert("ID non trovato."); return; }
-        navTo('hub-page');
-        buildUI();
+        openConfigurazione();
         setTimeout(() => {
           applyDataToForm(res);
           document.getElementById('nome').readOnly = true;
