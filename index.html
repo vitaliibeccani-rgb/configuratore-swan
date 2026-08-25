@@ -171,6 +171,25 @@
         gap: 20px; 
     }
 
+    /* Profilazione Box */
+    .profilazione-box {
+        background: #F8FAFC;
+        padding: 20px;
+        border-radius: 14px;
+        border: 2px solid var(--border);
+        margin-bottom: 25px;
+    }
+
+    .profilazione-box h3 {
+        color: var(--primary);
+        font-size: 0.95rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #E2E8F0;
+        padding-bottom: 6px;
+    }
+
     /* Areas & Menus Structure */
     .area-box { 
         margin-bottom: 20px; 
@@ -629,6 +648,51 @@
           <div class="field-group"><label>EMAIL RECAP</label><input type="email" id="email" name="email" class="input-premium" placeholder="cliente@azienda.it" required></div>
         </div>
 
+        <!-- SEZIONE PROFILAZIONE AGGIUNTA -->
+        <div class="profilazione-box">
+          <h3>PROFILAZIONE CLIENTE</h3>
+          <div class="grid-4">
+            <div class="field-group">
+              <label>SETTORE</label>
+              <select id="prof_settore" name="prof_settore" class="input-premium">
+                <option value="">-- Seleziona --</option>
+                <option value="Manifatturiero">Manifatturiero</option>
+                <option value="Retail / GDO">Retail / GDO</option>
+                <option value="Servizi">Servizi</option>
+                <option value="Logistica">Logistica / Trasporti</option>
+                <option value="Altro">Altro</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label>BUSINESS MODEL</label>
+              <select id="prof_business_model" name="prof_business_model" class="input-premium">
+                <option value="">-- Seleziona --</option>
+                <option value="B2B">B2B</option>
+                <option value="B2C">B2C</option>
+                <option value="B2B2C">B2B2C</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label>INTEGRAZIONE ERP</label>
+              <select id="prof_integrazione_erp" name="prof_integrazione_erp" class="input-premium">
+                <option value="">-- Seleziona --</option>
+                <option value="Nessuna">Nessuna</option>
+                <option value="Monodirezionale">Monodirezionale</option>
+                <option value="Bidirezionale">Bidirezionale</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label>GESTIONE OPERATIVA</label>
+              <select id="prof_gestione_operativa" name="prof_gestione_operativa" class="input-premium">
+                <option value="">-- Seleziona --</option>
+                <option value="Interna">Interna</option>
+                <option value="Outsourcing">Outsourcing</option>
+                <option value="Ibrida">Ibrida</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
         <div class="erp-global-row">
           <label style="font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 10px;">
             <input type="checkbox" id="usa_erp_globale" name="usa_erp_globale" onchange="handleGlobalERP()" style="width:18px; height:18px;"> Si utilizza un ERP?
@@ -1030,7 +1094,7 @@
         formData[el.name || el.id] = (el.type === 'checkbox') ? el.checked : el.value;
       }
     });
-// 👇 FORZIAMO LA LETTURA DELL'EMAIL PER SICUREZZA 👇
+
     formData.email = document.getElementById('email') ? document.getElementById('email').value : '';
     fetch(API_URL, {
       method: 'POST',
@@ -1054,7 +1118,6 @@
   }
 
   function doRecall() {
-  // .trim() rimuove gli spazi automatici inseriti dalle tastiere mobile
   const code = document.getElementById('recall-input').value.toUpperCase().replace(/\s+/g, '');
   
   if(!code) {
@@ -1062,7 +1125,6 @@
     return;
   }
 
-  // Aggiungiamo il timestamp per evitare che il telefono usi una vecchia risposta in cache
   const fetchUrl = `${API_URL}?action=loadConfigByCode&code=${encodeURIComponent(code)}&_t=${new Date().getTime()}`;
 
   fetch(fetchUrl, { method: 'GET' })
