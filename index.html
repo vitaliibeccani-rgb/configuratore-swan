@@ -211,6 +211,8 @@
 
 <form id="swanForm" onchange="autoSave()">
   <input type="hidden" id="config_id" name="config_id">
+  <input type="hidden" id="taglia_calcolata" name="taglia_calcolata" value="S">
+  <input type="hidden" id="golive_calcolato" name="golive_calcolato" value="--">
 
   <!-- PAGINA 1: LANDING PAGE -->
   <div id="landing-page" class="page page-visible">
@@ -259,7 +261,7 @@
         <div class="grid-2">
           <div class="hub-card-btn" onclick="openProfilazione()">
             <h3>📋 PROFILAZIONE</h3>
-            <p>Compila i requisiti di settore, business model e integrazioni erp.</p>
+            <p>Compila i requisiti di settore, business model e integrazioni ERP.</p>
           </div>
           <div class="hub-card-btn" onclick="openConfigurazione()">
             <h3>⚙️ CONFIGURAZIONE</h3>
@@ -376,12 +378,7 @@
   const API_URL = "https://script.google.com/macros/s/AKfycbzBE_7yPlPqJSk99lxTGAjWs52_lGdTj4-xlVwMN7cYSOS4eq0YVfFqLzuF16TRNjg/exec"; 
 
   let configStructure = [];
-  let profilazioneStructure = [
-    { campo: 'settore', etichetta: 'Settore Industriale', tipo: 'select', opzioni: 'Manifatturiero, Automotive, Food & Beverage, Pharma, Retail, Altro' },
-    { campo: 'business_model', etichetta: 'Business Model', tipo: 'select', opzioni: 'B2B, B2C, B2B2C, Distributori' },
-    { campo: 'erp_attuale', etichetta: 'ERP in Uso', tipo: 'text', opzioni: '' },
-    { campo: 'gestione_operativa', etichetta: 'Gestione Operativa', tipo: 'select', opzioni: 'Interna, Outsourcing, Mista' }
-  ];
+  let profilazioneStructure = [];
 
   window.onload = () => {
     checkDraft();
@@ -390,15 +387,11 @@
   };
 
   function loadAllData() {
-    buildProfilazioneUI();
-
     fetch(`${API_URL}?action=getStructure`, { redirect: 'follow' })
       .then(res => res.json())
       .then(res => {
         if (res.moduli) configStructure = res.moduli;
-        else if (Array.isArray(res)) configStructure = res;
-        
-        if (res.profilazione && res.profilazione.length > 0) profilazioneStructure = res.profilazione;
+        if (res.profilazione) profilazioneStructure = res.profilazione;
 
         localStorage.setItem('swan_structure_cache', JSON.stringify(res));
         buildProfilazioneUI();
@@ -415,7 +408,6 @@
     if (cached) {
       const data = JSON.parse(cached);
       if (data.moduli) configStructure = data.moduli;
-      else if (Array.isArray(data)) configStructure = data;
       if (data.profilazione) profilazioneStructure = data.profilazione;
     }
     buildProfilazioneUI();
@@ -436,15 +428,19 @@
     const container = document.getElementById('profilazione-builder-container');
     if (!container) return;
 
+    if (!profilazioneStructure || profilazioneStructure.length === 0) {
+      container.innerHTML = `<p style="text-align:center; color:#64748B; padding:20px;">Nessuna opzione di profilazione trovata nel foglio PROFILAIZONE.</p>`;
+      return;
+    }
+
     let html = '<div class="grid-2">';
     profilazioneStructure.forEach(item => {
       const campoKey = `prof_${item.chiave || item.campo}`;
       const etichetta = item.etichetta || item.campo;
-      const tipo = item.tipo || 'select';
-      const opzioni = item.opzioni ? item.opzioni.split(',').map(s => s.trim()) : [];
+      const tipo = (item.tipo || 'text').toLowerCase();
+      const opzioni = item.opzioni ? String(item.opzioni).split(',').map(s => s.trim()) : [];
 
-      html += `<div class="field-group">
-                <label>${etichetta}</label>`;
+      html += `<div class="field-group"><label>${etichetta}</label>`;
       
       if (tipo === 'select') {
         html += `<select name="${campoKey}" id="${campoKey}" class="input-premium" onchange="autoSave()">
@@ -617,7 +613,7 @@
     configStructure.forEach(item => {
       if(!areas[item.area]) areas[item.area] = {};
       if(!areas[item.area][item.menu]) areas[item.area][item.menu] = {};
-      const skey = (item.sottomenu && item.sottomenu.trim() !== "") ? item.sottomenu : "_DIRECT_";
+      const skey = (item.sottomenu && String(item.sottomenu).trim() !== "") ? item.sottomenu : "_DIRECT_";
       if(!areas[item.area][item.menu][skey]) areas[item.area][item.menu][skey] = [];
       areas[item.area][item.menu][skey].push(item);
     });
@@ -763,6 +759,7 @@
     });
 
     formData.email = document.getElementById('email') ? document.getElementById('email').value : '';
+    
     fetch(API_URL, {
       method: 'POST',
       body: JSON.stringify(formData)
@@ -826,6 +823,9 @@
     const drawerTaglia = document.getElementById('drawer-taglia-txt');
     const drawerSforzo = document.getElementById('drawer-sforzo-txt');
     const drawerGoLive = document.getElementById('drawer-golive-txt');
+
+    document.getElementById('taglia_calcolata').value = taglia;
+    document.getElementById('golive_calcolato').value = goLive;
 
     if (dockTaglia) dockTaglia.innerText = 'Taglia ' + taglia;
     if (dockSforzo) dockSforzo.innerText = sforzo + ' gg';
