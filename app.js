@@ -1,5 +1,5 @@
 // ==========================================
-// STATO GLOBALE DELL'APPLICAZIONE
+// STATO GLOBALE
 // ==========================================
 let appData = {
   config_id: '',
@@ -10,10 +10,8 @@ let appData = {
   erp_sistema_nome: ''
 };
 
-// Struttura Dinamica per il foglio AZIENDA (inizialmente vuota, pronta per dati esterni/Excel)
 let aziendaStructure = [];
 
-// Struttura Moduli SWAN
 const modulesStructure = [
   {
     category: "ADMIN / CONSOLE",
@@ -27,28 +25,24 @@ const modulesStructure = [
 ];
 
 // ==========================================
-// 1. NAVIGAZIONE SBLOCCATA (TUTTI I TASTI FUNZIONANO)
+// NAVIGAZIONE
 // ==========================================
 function navTo(pageId) {
-  // Nasconde tutte le pagine
   document.querySelectorAll('.page').forEach(p => p.classList.remove('page-visible'));
 
-  // Mostra solo la pagina richiesta
   const target = document.getElementById(pageId);
   if (target) {
     target.classList.add('page-visible');
   } else {
-    console.warn("Pagina non trovata:", pageId);
+    console.error("Pagina non trovata:", pageId);
     return;
   }
 
-  // Gestione Dock Bar
   const dock = document.getElementById('main-dock-bar');
   if (dock) {
     dock.style.display = (['landing-page', 'hub-page', 'success-page'].includes(pageId)) ? 'none' : 'flex';
   }
 
-  // Inizializza i contenuti se necessario
   if (pageId === 'azienda-page') renderAziendaBuilder();
   if (pageId === 'modules-page') renderModulesBuilder();
   if (pageId === 'hub-page') updateHubCardsStatus();
@@ -56,8 +50,75 @@ function navTo(pageId) {
   window.scrollTo(0, 0);
 }
 
+function resetAndHome() {
+  navTo('landing-page');
+}
+
+function toggleRecallBox() {
+  const box = document.getElementById('recall-box');
+  if (box) box.style.display = (box.style.display === 'block') ? 'none' : 'block';
+}
+
 // ==========================================
-// 2. RECUPERO E NUOVA CONFIGURAZIONE
+// LETTURA EXCEL DINAMICA (FOGLIO "AZIENDA")
+// ==========================================
+function leggiFileExcel(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: 'array' });
+
+    // Cerca il foglio "AZIENDA" (o prende il primo foglio se non lo trova)
+    const sheetName = workbook.SheetNames.includes("AZIENDA") ? "AZIENDA" : workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+
+    // Converte il foglio in dati grezzi
+    const rawData = XLSX.utils.sheet_to_json(worksheet, { header: "A" });
+    
+    // Mappa le colonne A, B, C, D, E nella nostra struttura
+    aziendaStructure = trasformaExcelInStruttura(rawData);
+    
+    alert(`Foglio "${sheetName}" caricato con successo con ${aziendaStructure.length} argomenti!`);
+    renderAziendaBuilder();
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function trasformaExcelInStruttura(rawData) {
+  const sezioniMap = {};
+
+  rawData.forEach((row, index) => {
+    if (index === 0) return; // Salta intestazione (riga 1)
+
+    const colA = row.A ? String(row.A).trim() : 'GENERALE';
+    const colB = row.B ? String(row.B).trim() : '';
+    const colC = row.C ? String(row.C).split(';').map(o => o.trim()) : [];
+    const colD = row.D ? String(row.D).trim().toLowerCase() : 'text';
+    const colE = row.E ? (String(row.E).trim().toLowerCase() === 'true' || String(row.E).trim() === '1') : false;
+
+    if (!colB) return;
+
+    if (!sezioniMap[colA]) {
+      sezioniMap[colA] = { colonnaA_sezione: colA, domande: [] };
+    }
+
+    sezioniMap[colA].domande.push({
+      colonnaB_domanda: colB,
+      colonnaC_opzioni: colC,
+      colonnaD_tipo: colD,
+      colonnaE_obbligatorio: colE,
+      haCampoAltro: colC.some(opt => opt.toLowerCase() === 'altro')
+    });
+  });
+
+  return Object.values(sezioniMap);
+}
+
+// ==========================================
+// GESTIONE DATI E CONFIGURAZIONE
 // ==========================================
 function startNewConfig() {
   appData = {
@@ -69,85 +130,64 @@ function startNewConfig() {
     erp_sistema_nome: ''
   };
 
-  // Pulizia input testo
-  ['azienda', 'nome', 'compilatore', 'email', 'input-recupera-codice', 'codice_recupero'].forEach(id => {
+  ['azienda', 'nome', 'compilatore', 'email', 'input-recupera-codice'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
 
-  renderAziendaBuilder();
-  renderModulesBuilder();
   navTo('hub-page');
 }
 
 function recuperaConfigurazione() {
-  const codeInput = document.getElementById('input-recupera-codice') || document.getElementById('codice_recupero');
+  const codeInput = document.getElementById('input-recupera-codice');
   const code = codeInput ? codeInput.value.trim().toUpperCase() : '';
 
   if (!code) {
-    alert("Inserisci un codice di configurazione valido!");
+    alert("Inserisci un codice valido!");
     return;
   }
 
   const saved = localStorage.getItem('SWAN_CONFIG_' + code);
   if (!saved) {
-    alert("Nessuna configurazione trovata con il codice: " + code);
+    alert("Nessuna configurazione trovata per: " + code);
     return;
   }
 
-  try {
-    appData = JSON.parse(saved);
+  appData = JSON.parse(saved);
 
-    if (document.getElementById('azienda')) document.getElementById('azienda').value = appData.info.azienda || '';
-    if (document.getElementById('nome')) document.getElementById('nome').value = appData.info.nome || '';
-    if (document.getElementById('compilatore')) document.getElementById('compilatore').value = appData.info.compilatore || '';
-    if (document.getElementById('email')) document.getElementById('email').value = appData.info.email || '';
+  if (document.getElementById('azienda')) document.getElementById('azienda').value = appData.info.azienda || '';
+  if (document.getElementById('nome')) document.getElementById('nome').value = appData.info.nome || '';
+  if (document.getElementById('compilatore')) document.getElementById('compilatore').value = appData.info.compilatore || '';
+  if (document.getElementById('email')) document.getElementById('email').value = appData.info.email || '';
 
-    const erpChk = document.getElementById('usa_erp_globale');
-    if (erpChk) erpChk.checked = appData.usa_erp_globale || false;
-    handleGlobalERP();
+  const erpChk = document.getElementById('usa_erp_globale');
+  if (erpChk) erpChk.checked = appData.usa_erp_globale || false;
+  handleGlobalERP();
 
-    renderAziendaBuilder();
-    renderModulesBuilder();
+  renderAziendaBuilder();
+  renderModulesBuilder();
 
-    restoreAziendaInputs();
-    restoreModulesInputs();
+  restoreAziendaInputs();
+  restoreModulesInputs();
 
-    alert("Configurazione " + code + " recuperata!");
-    navTo('hub-page');
-  } catch (e) {
-    console.error("Errore recupero dati:", e);
-    alert("Errore nel caricamento dei dati salvati.");
-  }
+  alert("Configurazione " + code + " caricata!");
+  navTo('hub-page');
 }
 
-// ==========================================
-// 3. CAMPI CLIENTE RIGIDAMENTE OBBLIGATORI
-// ==========================================
-function validateClientInfo() {
+function saveConfiguration() {
   const az = document.getElementById('azienda')?.value.trim() || '';
   const nom = document.getElementById('nome')?.value.trim() || '';
   const comp = document.getElementById('compilatore')?.value.trim() || '';
   const em = document.getElementById('email')?.value.trim() || '';
 
   if (!az || !nom || !comp || !em) {
-    alert("ATTENZIONE: Tutti i campi dell'Anagrafica Cliente (Azienda, Referente, Compilatore, Email) sono OBBLIGATORI prima di proseguire!");
-    return false;
-  }
-  
-  appData.info = { azienda: az, nome: nom, compilatore: comp, email: em };
-  return true;
-}
-
-function saveConfiguration() {
-  // Blocco di sicurezza sui campi anagrafici
-  if (!validateClientInfo()) {
+    alert("I 4 campi anagrafici nell'Hub (Cliente, Referente, Compilato da, Email) sono tutti OBBLIGATORI!");
     navTo('hub-page');
     return;
   }
 
+  appData.info = { azienda: az, nome: nom, compilatore: comp, email: em };
   localStorage.setItem('SWAN_CONFIG_' + appData.config_id, JSON.stringify(appData));
-  localStorage.removeItem('SWAN_DRAFT');
 
   const finalIdEl = document.getElementById('final-id');
   if (finalIdEl) finalIdEl.innerText = appData.config_id;
@@ -156,13 +196,8 @@ function saveConfiguration() {
 }
 
 // ==========================================
-// 4. ANAGRAFICA AZIENDA (DINAMICA PER N DOMANDE)
+// RENDER ANAGRAFICA AZIENDA
 // ==========================================
-function setAziendaDataFromExcel(datiCaricati) {
-  aziendaStructure = datiCaricati;
-  renderAziendaBuilder();
-}
-
 function renderCampoDynamic(q, fieldId) {
   const tipo = (q.colonnaD_tipo || 'text').toLowerCase();
   const opzioni = q.colonnaC_opzioni || [];
@@ -170,35 +205,24 @@ function renderCampoDynamic(q, fieldId) {
   switch (tipo) {
     case 'checkbox':
       return `
-        <div class="az-options-group-horizontal" style="display:flex; flex-wrap:wrap; gap:12px 20px;">
+        <div style="display:flex; flex-wrap:wrap; gap:12px;">
           ${opzioni.map(opt => `
-            <label style="display:flex; align-items:center; gap:6px;">
-              <input type="checkbox" name="${fieldId}" value="${opt}" onchange="saveAziendaInputs(); autoSave(); checkAziendaCompletion();">
-              <span>${opt}</span>
-            </label>
+            <label><input type="checkbox" name="${fieldId}" value="${opt}" onchange="saveAziendaInputs(); autoSave(); checkAziendaCompletion();"> ${opt}</label>
           `).join('')}
-          ${q.haCampoAltro ? `
-            <div style="display:flex; align-items:center; gap:6px;">
-              <span style="font-size:0.8rem; font-weight:700;">Altro:</span>
-              <input type="text" id="${fieldId}_altro" style="width:140px; padding:4px;" oninput="saveAziendaInputs(); autoSave(); checkAziendaCompletion();">
-            </div>
-          ` : ''}
+          ${q.haCampoAltro ? `<input type="text" id="${fieldId}_altro" placeholder="Altro..." oninput="saveAziendaInputs(); autoSave(); checkAziendaCompletion();">` : ''}
         </div>`;
 
     case 'radio':
       return `
-        <div class="az-options-group-horizontal" style="display:flex; flex-wrap:wrap; gap:12px 20px;">
+        <div style="display:flex; flex-wrap:wrap; gap:12px;">
           ${opzioni.map(opt => `
-            <label style="display:flex; align-items:center; gap:6px;">
-              <input type="radio" name="${fieldId}" value="${opt}" onchange="saveAziendaInputs(); autoSave(); checkAziendaCompletion();">
-              <span>${opt}</span>
-            </label>
+            <label><input type="radio" name="${fieldId}" value="${opt}" onchange="saveAziendaInputs(); autoSave(); checkAziendaCompletion();"> ${opt}</label>
           `).join('')}
         </div>`;
 
     case 'text':
     default:
-      return `<input type="text" id="${fieldId}" placeholder="Inserisci risposta..." oninput="saveAziendaInputs(); autoSave(); checkAziendaCompletion();">`;
+      return `<input type="text" id="${fieldId}" placeholder="Risposta..." oninput="saveAziendaInputs(); autoSave(); checkAziendaCompletion();">`;
   }
 }
 
@@ -207,24 +231,19 @@ function renderAziendaBuilder() {
   if (!container) return;
 
   if (aziendaStructure.length === 0) {
-    container.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-muted);">Nessun foglio risposte caricato. Carica la configurazione o il file Excel.</div>`;
+    container.innerHTML = `<div style="padding:20px; text-align:center;">Carica prima il foglio Excel nella Home per vedere le domande.</div>`;
     return;
   }
 
   container.innerHTML = aziendaStructure.map((sec, secIdx) => `
-    <div class="light-card" id="card-azienda-sec-${secIdx}">
-      <div class="light-card-header" style="margin-bottom:12px; font-weight:bold;">${sec.colonnaA_sezione}</div>
-      <div>
-        ${sec.domande.map((q, qIdx) => {
-          const reqStar = q.colonnaE_obbligatorio ? ' <span style="color:#ef4444;">*</span>' : '';
-          const fieldId = `q_${secIdx}_${qIdx}`;
-          return `
-            <div class="form-group" style="margin-bottom:15px;">
-              <label style="display:block; margin-bottom:5px;">${q.colonnaB_domanda}${reqStar}</label>
-              ${renderCampoDynamic(q, fieldId)}
-            </div>`;
-        }).join('')}
-      </div>
+    <div class="light-card" id="card-azienda-sec-${secIdx}" style="margin-bottom:15px;">
+      <h3 style="margin-top:0;">${sec.colonnaA_sezione}</h3>
+      ${sec.domande.map((q, qIdx) => `
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>${q.colonnaB_domanda} ${q.colonnaE_obbligatorio ? '<span style="color:red">*</span>' : ''}</label>
+          ${renderCampoDynamic(q, `q_${secIdx}_${qIdx}`)}
+        </div>
+      `).join('')}
     </div>
   `).join('');
 
@@ -257,7 +276,7 @@ function restoreAziendaInputs() {
     sec.domande.forEach((q, qIdx) => {
       const fieldId = `q_${secIdx}_${qIdx}`;
       const savedVal = appData.aziendaData[q.colonnaB_domanda];
-      if (savedVal !== undefined && savedVal !== null) {
+      if (savedVal !== undefined) {
         if (q.colonnaD_tipo === "checkbox" && typeof savedVal === 'object') {
           if (savedVal.selected) {
             savedVal.selected.forEach(val => {
@@ -305,7 +324,7 @@ function checkAziendaCompletion() {
 }
 
 // ==========================================
-// 5. GESTIONE MODULI ED ERP
+// RENDER MODULI
 // ==========================================
 function handleGlobalERP() {
   const chk = document.getElementById('usa_erp_globale');
@@ -324,33 +343,24 @@ function renderModulesBuilder() {
   if (!container) return;
 
   container.innerHTML = modulesStructure.map(cat => `
-    <div style="margin-top:15px; margin-bottom:10px; font-weight:800; font-size:0.85rem; color:var(--text-muted);">${cat.category}</div>
+    <div style="margin-top:15px; font-weight:bold;">${cat.category}</div>
     ${cat.modules.map(mod => `
       <div class="func-row-wrapper" id="row-${mod.id}" onclick="toggleModuleSelection('${mod.id}')">
         <div class="func-row-header">
-          <div class="func-title-group">
-            <div class="custom-check" id="check-${mod.id}">✓</div>
-            <span>${mod.title}</span>
-          </div>
+          <span>${mod.title}</span>
         </div>
         <div class="func-sub-controls" onclick="event.stopPropagation();">
-          <div style="display:flex; gap:8px; align-items:center;">
-            <button type="button" class="btn-note" id="btn-note-${mod.id}" onclick="toggleNoteBox('${mod.id}')">+ Note</button>
-            <select class="select-level" id="level-${mod.id}" onchange="saveModulesInputs(); autoSave();">
-              <option value="VIEW">VIEW</option>
-              <option value="EDIT">EDIT</option>
-            </select>
-          </div>
-          <div class="erp-module-control" style="display:none; align-items:center; gap:8px;">
-            <span style="font-size:0.75rem; font-weight:700; color:var(--primary);">ERP</span>
-            <label class="switch">
-              <input type="checkbox" id="erp-switch-${mod.id}" onchange="saveModulesInputs(); autoSave();">
-              <span class="slider"></span>
-            </label>
+          <select id="level-${mod.id}" onchange="saveModulesInputs(); autoSave();">
+            <option value="VIEW">VIEW</option>
+            <option value="EDIT">EDIT</option>
+          </select>
+          <div class="erp-module-control" style="display:none;">
+            <span>ERP</span>
+            <input type="checkbox" id="erp-switch-${mod.id}" onchange="saveModulesInputs(); autoSave();">
           </div>
         </div>
         <div class="note-container" id="notebox-${mod.id}">
-          <textarea id="note-${mod.id}" rows="2" placeholder="Note per ${mod.title}..." oninput="handleNoteText('${mod.id}'); saveModulesInputs(); autoSave();"></textarea>
+          <textarea id="note-${mod.id}" placeholder="Note..." oninput="saveModulesInputs(); autoSave();"></textarea>
         </div>
       </div>
     `).join('')}
@@ -366,19 +376,6 @@ function toggleModuleSelection(modId) {
   row.classList.toggle('is-selected');
   saveModulesInputs();
   autoSave();
-}
-
-function toggleNoteBox(modId) {
-  const box = document.getElementById(`notebox-${modId}`);
-  if (box) box.style.display = (box.style.display === 'block') ? 'none' : 'block';
-}
-
-function handleNoteText(modId) {
-  const txt = document.getElementById(`note-${modId}`);
-  const btn = document.getElementById(`btn-note-${modId}`);
-  if (txt && btn) {
-    btn.classList.toggle('has-note', txt.value.trim().length > 0);
-  }
 }
 
 function saveModulesInputs() {
@@ -409,11 +406,8 @@ function restoreModulesInputs() {
     const erpSw = document.getElementById(`erp-switch-${modId}`);
     if (erpSw && mod.erp) erpSw.checked = mod.erp;
 
-    const note = document.getElementById(`note-${modId}`);
-    if (note && mod.note) {
-      note.value = mod.note;
-      handleNoteText(modId);
-    }
+    const note = document.getElementById(`note-${mod.id}`);
+    if (note && mod.note) note.value = mod.note;
   });
   calculateMetrics();
 }
@@ -448,7 +442,7 @@ function updateHubCardsStatus() {
 }
 
 // ==========================================
-// AVVIO APPLICAZIONE AUTOMATICO
+// AVVIO
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
   navTo('landing-page');
