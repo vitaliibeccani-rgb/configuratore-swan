@@ -1,186 +1,454 @@
-// --- STATO DELL'APPLICAZIONE ---
-const appState = {
-  company: {},
-  modules: {}
+// --- STATO GLOBALE DELL'APPLICAZIONE ---
+let appData = {
+  config_id: '',
+  info: { azienda: '', nome: '', compilatore: '', email: '' },
+  aziendaData: {},
+  modulesData: {},
+  usa_erp_globale: false,
+  erp_sistema_nome: ''
 };
 
-// --- 1. DATI STRUTTURATI DA EXCEL (Colonna B: Domanda, Colonna C: Opzioni) ---
-const companySections = [
+// --- STRUTTURA SEZIONE ANAGRAFICA AZIENDA ---
+// Colonna B = label / Domanda
+// Colonna C = options (se popolata -> genera Checkbox, se vuota [] -> genera campo di testo per Colonna D)
+const aziendaStructure = [
+  {
+    title: "ANAGRAFICA AZIENDA",
+    questions: [
+      { id: "ragione_sociale", label: "RAGIONE SOCIALE / NOME AZIENDA", options: [] },
+      { id: "settore_attivita", label: "SETTORE DI ATTIVITÀ", options: ["Manifatturiero", "Distribuzione / Retail", "Servizi", "Automotive", "Altro"] }
+    ]
+  },
   {
     title: "DEFINIZIONE DELL'AZIENDA",
     questions: [
-      {
-        id: "tipologiaAzienda",
-        label: "TIPOLOGIA DELL'AZIENDA *",
-        // Colonna C: opzioni definite. Se vuota (es. []), renderizza il campo text.
-        options: ["Produzione", "Distribuzione", "Retail", "Servizi", "B2B"],
-        allowCustomText: true // Per consentire il campo "Specificare..."
+      { 
+        id: "tipologia_azienda", 
+        label: "TIPOLOGIA DELL'AZIENDA *", 
+        options: ["Produzione", "Commerciale", "Servizi / Assistenza", "B2B", "B2C"],
+        hasOther: true 
       }
     ]
   },
   {
     title: "PRODOTTI",
     questions: [
-      {
-        id: "categorieProdotti",
-        label: "CATEGORIE PRODOTTI COMMERCIALIZZATI *",
-        options: ["Elettronica", "Meccanica", "Abbigliamento"],
-        allowCustomText: true
+      { 
+        id: "categorie_prodotti", 
+        label: "CATEGORIE PRODOTTI COMMERCIALIZZATI *", 
+        options: ["Macchinari", "Elettronica", "Impianti", "Componentistica"],
+        hasOther: true 
       },
-      {
-        id: "noteSpecifiche",
-        label: "NOTE O REQUISITI SPECIFICI",
-        options: [], // Nessuna opzione in Colonna C -> Genera campo di testo per Colonna D
-        allowCustomText: false
-      }
+      { id: "note_prodotti", label: "REQUISITI SPECIFICI PRODOTTI", options: [] }
     ]
   }
 ];
 
-// Dati Moduli Console
-const consoleModules = [
-  { id: 'attivazioni', title: 'CONSOLE ATTIVAZIONI' },
-  { id: 'garanzie', title: 'CONSOLE GARANZIE' },
-  { id: 'ordini', title: 'CONSOLE ORDINI' },
-  { id: 'tagliandi', title: 'CONSOLE TAGLIANDI' }
+// --- STRUTTURA CONFIGURAZIONE MODULI SWAN ---
+const modulesStructure = [
+  {
+    category: "ADMIN / CONSOLE",
+    modules: [
+      { id: "console_attivazioni", title: "CONSOLE ATTIVAZIONI" },
+      { id: "console_garanzie", title: "CONSOLE GARANZIE" },
+      { id: "console_ordini", title: "CONSOLE ORDINI" },
+      { id: "console_tagliandi", title: "CONSOLE TAGLIANDI" }
+    ]
+  }
 ];
 
-// --- 2. RENDER SEZIONE ANAGRAFICA AZIENDA ---
-function renderCompanyForm() {
-  const container = document.getElementById('company-section');
-  if (!container) return;
+// --- 1. NAVIGAZIONE TRA SCHERMATE ---
+function navTo(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('page-visible'));
+  const target = document.getElementById(pageId);
+  if (target) target.classList.add('page-visible');
 
-  container.innerHTML = companySections.map(sec => `
-    <div class="light-card">
-      <div class="light-card-header">
-        <span>${sec.title}</span>
-      </div>
-      <div style="margin-top: 15px;">
-        ${sec.questions.map(q => renderQuestionField(q)).join('')}
-      </div>
-    </div>
-  `).join('');
+  // Gestione visibilità Dock Bar
+  const dock = document.getElementById('main-dock-bar');
+  if (dock) {
+    if (pageId === 'landing-page' || pageId === 'hub-page' || pageId === 'success-page') {
+      dock.style.display = 'none';
+    } else {
+      dock.style.display = 'flex';
+    }
+  }
+
+  // Aggiorna stato completamento carte nell'Hub se torniamo all'Hub
+  if (pageId === 'hub-page') {
+    updateHubCardsStatus();
+  }
+
+  window.scrollTo(0, 0);
 }
 
-function renderQuestionField(q) {
-  const hasOptions = q.options && q.options.length > 0;
+// --- 2. GESTIONE LANDING PAGE & BOZZE ---
+function startNewConfig() {
+  appData = {
+    config_id: 'SW-' + Math.floor(1000 + Math.random() * 9000),
+    info: { azienda: '', nome: '', compilatore: '', email: '' },
+    aziendaData: {},
+    modulesData: {},
+    usa_erp_globale: false,
+    erp_sistema_nome: ''
+  };
 
-  return `
-    <div class="form-group" style="margin-bottom: 18px;">
-      <label>${q.label}</label>
-      
-      ${hasOptions ? `
-        <!-- Se la Colonna C contiene opzioni -->
-        <div class="az-options-group-horizontal">
-          ${q.options.map((opt, idx) => `
-            <label class="az-option-item-horiz">
-              <input type="checkbox" name="${q.id}" value="${opt}" onchange="updateCompanyData('${q.id}')">
-              <span>${opt}</span>
-            </label>
-          `).join('')}
-          
-          ${q.allowCustomText ? `
-            <div class="az-option-item-horiz" style="margin-left: 10px;">
-              <span style="font-size: 0.8rem; color: var(--text-muted);">Altro / Specificare:</span>
-              <input type="text" class="input-field" style="width: 160px; padding: 4px 8px;" placeholder="Specificare..." oninput="updateCompanyData('${q.id}_custom', this.value)">
-            </div>
-          ` : ''}
-        </div>
-      ` : `
-        <!-- Se la Colonna C è VUOTA -> Genera campo di testo (Colonna D) -->
-        <input type="text" class="input-field" placeholder="Inserisci valore..." oninput="updateCompanyData('${q.id}', this.value)">
-      `}
-    </div>
-  `;
+  // Reset form e campi
+  document.querySelectorAll('input').forEach(i => { if (i.type === 'text' || i.type === 'email') i.value = ''; });
+  document.getElementById('usa_erp_globale').checked = false;
+  handleGlobalERP();
+
+  renderAziendaBuilder();
+  renderModulesBuilder();
+  navTo('hub-page');
 }
 
-function updateCompanyData(key) {
-  // Aggiorna lo stato in base alle opzioni selezionate
-  const checkboxes = document.querySelectorAll(`input[name="${key}"]:checked`);
-  if (checkboxes.length > 0) {
-    appState.company[key] = Array.from(checkboxes).map(cb => cb.value);
+function toggleRecallBox() {
+  const box = document.getElementById('recall-box');
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+}
+
+function doRecall() {
+  const input = document.getElementById('recall-input').value.trim().toUpperCase();
+  if (!input) return alert('Inserisci un codice valido!');
+
+  const saved = localStorage.getItem('SWAN_CONFIG_' + input);
+  if (saved) {
+    appData = JSON.parse(saved);
+    restoreStateToUI();
+    navTo('hub-page');
+  } else {
+    alert('Nessuna configurazione trovata per il codice: ' + input);
   }
 }
 
-// --- 3. RENDER CONFIGURAZIONE MODULI (CON CUSTOM CHECKBOX) ---
-function renderModulesConfig() {
-  const container = document.getElementById('modules-container');
+function checkDraft() {
+  const draft = localStorage.getItem('SWAN_DRAFT');
+  const btn = document.getElementById('btn-resume-draft');
+  if (draft && btn) btn.style.display = 'inline-block';
+}
+
+function resumeDraft() {
+  const draft = localStorage.getItem('SWAN_DRAFT');
+  if (draft) {
+    appData = JSON.parse(draft);
+    restoreStateToUI();
+    navTo('hub-page');
+  }
+}
+
+function autoSave() {
+  // Raccogli informazioni generali dell'Hub
+  appData.info.azienda = document.getElementById('azienda')?.value || '';
+  appData.info.nome = document.getElementById('nome')?.value || '';
+  appData.info.compilatore = document.getElementById('compilatore')?.value || '';
+  appData.info.email = document.getElementById('email')?.value || '';
+  appData.erp_sistema_nome = document.getElementById('erp_sistema_nome')?.value || '';
+
+  localStorage.setItem('SWAN_DRAFT', JSON.stringify(appData));
+}
+
+// --- 3. RENDER SEZIONE ANAGRAFICA AZIENDA ---
+function renderAziendaBuilder() {
+  const container = document.getElementById('azienda-builder-container');
   if (!container) return;
 
-  container.innerHTML = consoleModules.map(mod => `
-    <div class="func-row-wrapper" id="row-${mod.id}" onclick="toggleModuleRow('${mod.id}')">
-      <div class="func-row-header">
-        <div class="func-title-group">
-          <!-- Quadratino Check Personalizzato (CSS style) -->
-          <div class="custom-check" id="check-${mod.id}">✓</div>
-          <span style="font-size: 0.95rem; font-weight: 700;">${mod.title}</span>
-        </div>
+  container.innerHTML = aziendaStructure.map(sec => `
+    <div class="light-card" style="margin-bottom:15px;">
+      <div class="light-card-header" style="margin-bottom:10px;">
+        <span>${sec.title}</span>
       </div>
-      
-      <div class="func-sub-controls" onclick="event.stopPropagation();">
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <button type="button" class="btn-note" onclick="toggleNote(this)">+ Note</button>
-          <select class="select-level">
-            <option value="VIEW">VIEW</option>
-            <option value="EDIT">EDIT</option>
-          </select>
-        </div>
-        
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 0.75rem; font-weight: 700; color: var(--primary);">ERP</span>
-          <label class="switch">
-            <input type="checkbox" onchange="toggleErpSwitch('${mod.id}', this.checked)">
-            <span class="slider"></span>
-          </label>
-        </div>
-      </div>
-
-      <div class="note-container">
-        <textarea placeholder="Inserisci note per ${mod.title}..." oninput="handleNoteInput(this)"></textarea>
+      <div>
+        ${sec.questions.map(q => {
+          const hasOptions = q.options && q.options.length > 0;
+          return `
+            <div class="form-group" style="margin-bottom:15px;">
+              <label>${q.label}</label>
+              ${hasOptions ? `
+                <div class="az-options-group-horizontal">
+                  ${q.options.map((opt, idx) => `
+                    <label class="az-option-item-horiz">
+                      <input type="checkbox" data-qid="${q.id}" value="${opt}" onchange="saveAziendaInputs(); autoSave();">
+                      <span>${opt}</span>
+                    </label>
+                  `).join('')}
+                  ${q.hasOther ? `
+                    <div class="az-option-item-horiz">
+                      <span style="font-size:0.8rem; color:var(--text-muted);">Altro:</span>
+                      <input type="text" id="${q.id}_other" placeholder="Specificare..." style="width:140px; padding:4px 8px;" oninput="saveAziendaInputs(); autoSave();">
+                    </div>
+                  ` : ''}
+                </div>
+              ` : `
+                <input type="text" id="${q.id}" placeholder="Inserisci valore..." oninput="saveAziendaInputs(); autoSave();">
+              `}
+            </div>
+          `;
+        }).join('')}
       </div>
     </div>
   `).join('');
 }
 
-// Alterna la selezione della riga del modulo
-function toggleModuleRow(modId) {
+function saveAziendaInputs() {
+  aziendaStructure.forEach(sec => {
+    sec.questions.forEach(q => {
+      if (q.options && q.options.length > 0) {
+        const checked = Array.from(document.querySelectorAll(`input[data-qid="${q.id}"]:checked`)).map(cb => cb.value);
+        const otherVal = document.getElementById(`${q.id}_other`)?.value || '';
+        appData.aziendaData[q.id] = { selected: checked, other: otherVal };
+      } else {
+        const val = document.getElementById(q.id)?.value || '';
+        appData.aziendaData[q.id] = val;
+      }
+    });
+  });
+}
+
+// --- 4. RENDER CONFIGURAZIONE MODULI & CHECKBOX ---
+function renderModulesBuilder() {
+  const container = document.getElementById('builder-container');
+  if (!container) return;
+
+  container.innerHTML = modulesStructure.map(cat => `
+    <div style="margin-top:15px; margin-bottom:10px; font-weight:800; font-size:0.85rem; color:var(--text-muted);">${cat.category}</div>
+    ${cat.modules.map(mod => `
+      <div class="func-row-wrapper" id="row-${mod.id}" onclick="toggleModuleSelection('${mod.id}')">
+        <div class="func-row-header">
+          <div class="func-title-group">
+            <div class="custom-check" id="check-${mod.id}">✓</div>
+            <span>${mod.title}</span>
+          </div>
+        </div>
+
+        <div class="func-sub-controls" onclick="event.stopPropagation();">
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button type="button" class="btn-note" id="btn-note-${mod.id}" onclick="toggleNoteBox('${mod.id}')">+ Note</button>
+            <select class="select-level" id="level-${mod.id}" onchange="saveModulesInputs(); autoSave();">
+              <option value="VIEW">VIEW</option>
+              <option value="EDIT">EDIT</option>
+            </select>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:0.75rem; font-weight:700; color:var(--primary);">ERP</span>
+            <label class="switch">
+              <input type="checkbox" id="erp-switch-${mod.id}" onchange="saveModulesInputs(); autoSave();">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="note-container" id="notebox-${mod.id}">
+          <textarea id="note-${mod.id}" placeholder="Inserisci eventuali note per ${mod.title}..." oninput="handleNoteText('${mod.id}'); saveModulesInputs(); autoSave();"></textarea>
+        </div>
+      </div>
+    `).join('')}
+  `).join('');
+}
+
+function toggleModuleSelection(modId) {
   const row = document.getElementById(`row-${modId}`);
   if (!row) return;
 
-  const isSelected = row.classList.toggle('is-selected');
-  appState.modules[modId] = isSelected;
+  row.classList.toggle('is-selected');
+  saveModulesInputs();
+  autoSave();
 }
 
-// Toggle pannello Note
-function toggleNote(btn) {
-  const parent = btn.closest('.func-row-wrapper');
-  if (!parent) return;
-  const noteContainer = parent.querySelector('.note-container');
-  if (noteContainer) {
-    const isVisible = noteContainer.style.display === 'block';
-    noteContainer.style.display = isVisible ? 'none' : 'block';
+function toggleNoteBox(modId) {
+  const box = document.getElementById(`notebox-${modId}`);
+  if (box) {
+    box.style.display = box.style.display === 'block' ? 'none' : 'block';
   }
 }
 
-// Gestione evidenziazione tasto nota
-function handleNoteInput(textarea) {
-  const btnNote = textarea.closest('.func-row-wrapper')?.querySelector('.btn-note');
-  if (btnNote) {
-    if (textarea.value.trim().length > 0) {
-      btnNote.classList.add('has-note');
+function handleNoteText(modId) {
+  const txt = document.getElementById(`note-${modId}`);
+  const btn = document.getElementById(`btn-note-${modId}`);
+  if (txt && btn) {
+    if (txt.value.trim().length > 0) {
+      btn.classList.add('has-note');
     } else {
-      btnNote.classList.remove('has-note');
+      btn.classList.remove('has-note');
     }
   }
 }
 
-function toggleErpSwitch(modId, isChecked) {
-  if (!appState.modules[modId]) appState.modules[modId] = {};
-  appState.modules[modId].erp = isChecked;
+function saveModulesInputs() {
+  modulesStructure.forEach(cat => {
+    cat.modules.forEach(mod => {
+      const row = document.getElementById(`row-${mod.id}`);
+      const isSelected = row ? row.classList.contains('is-selected') : false;
+      const level = document.getElementById(`level-${mod.id}`)?.value || 'VIEW';
+      const erpActive = document.getElementById(`erp-switch-${mod.id}`)?.checked || false;
+      const note = document.getElementById(`note-${mod.id}`)?.value || '';
+
+      appData.modulesData[mod.id] = {
+        active: isSelected,
+        level: level,
+        erp: erpActive,
+        note: note
+      };
+    });
+  });
+
+  calculateMetrics();
+}
+
+// --- 5. LOGICA CALCOLO TAGLIA & SFORZO ---
+function calculateMetrics() {
+  let count = 0;
+  Object.values(appData.modulesData).forEach(m => {
+    if (m.active) count++;
+  });
+
+  let taglia = 'Taglia S';
+  let sforzo = count * 0.5;
+
+  if (count > 2 && count <= 5) {
+    taglia = 'Taglia M';
+  } else if (count > 5) {
+    taglia = 'Taglia L';
+  }
+
+  const elTaglia = document.getElementById('dock-taglia-val');
+  const elSforzo = document.getElementById('dock-sforzo-val');
+
+  if (elTaglia) elTaglia.innerText = taglia;
+  if (elSforzo) elSforzo.innerText = sforzo.toFixed(1) + ' gg';
+}
+
+// --- 6. GESTIONE ERP GLOBALE E APERTURA SEZIONI ---
+function handleGlobalERP() {
+  const chk = document.getElementById('usa_erp_globale');
+  const masterBox = document.getElementById('nome_erp_master');
+  appData.usa_erp_globale = chk ? chk.checked : false;
+
+  if (masterBox) {
+    masterBox.style.display = appData.usa_erp_globale ? 'block' : 'none';
+  }
+}
+
+function openAziendaSection() {
+  navTo('azienda-app');
+}
+
+function openConfigSection() {
+  navTo('config-app');
+}
+
+function updateHubCardsStatus() {
+  const cardAzienda = document.getElementById('hub-card-azienda');
+  const cardConfig = document.getElementById('hub-card-config');
+
+  // Verifica completamento Azienda
+  const hasAziendaName = appData.info.azienda || (appData.aziendaData.ragione_sociale && appData.aziendaData.ragione_sociale.length > 0);
+  if (cardAzienda) {
+    if (hasAziendaName) cardAzienda.classList.add('completed');
+    else cardAzienda.classList.remove('completed');
+  }
+
+  // Verifica completamento Moduli
+  const hasActiveModules = Object.values(appData.modulesData).some(m => m.active);
+  if (cardConfig) {
+    if (hasActiveModules) cardConfig.classList.add('completed');
+    else cardConfig.classList.remove('completed');
+  }
+}
+
+// --- 7. SALVATAGGIO CONFIGURAZIONE & RIPRISTINO ---
+function saveConfiguration() {
+  if (!appData.info.azienda) {
+    const nomeInp = prompt("Inserisci il Nome Cliente / Azienda per salvare la configurazione:", "");
+    if (!nomeInp) return alert("Impossibile salvare senza un Nome Azienda.");
+    appData.info.azienda = nomeInp;
+    document.getElementById('azienda').value = nomeInp;
+  }
+
+  // Salvataggio permanente
+  localStorage.setItem('SWAN_CONFIG_' + appData.config_id, JSON.stringify(appData));
+  localStorage.removeItem('SWAN_DRAFT');
+
+  // Aggiorna pagina Success
+  document.getElementById('final-id').innerText = appData.config_id;
+  const infoBox = document.getElementById('info-success-box');
+  if (infoBox) {
+    infoBox.innerHTML = `
+      <p><strong>Cliente:</strong> ${appData.info.azienda}</p>
+      <p><strong>Referente:</strong> ${appData.info.nome || '-'}</p>
+      <p><strong>Compilato da:</strong> ${appData.info.compilatore || '-'}</p>
+    `;
+  }
+
+  navTo('success-page');
+}
+
+function restoreStateToUI() {
+  // Ripristina info generali
+  if (document.getElementById('azienda')) document.getElementById('azienda').value = appData.info.azienda || '';
+  if (document.getElementById('nome')) document.getElementById('nome').value = appData.info.nome || '';
+  if (document.getElementById('compilatore')) document.getElementById('compilatore').value = appData.info.compilatore || '';
+  if (document.getElementById('email')) document.getElementById('email').value = appData.info.email || '';
+  
+  // Ripristina ERP
+  const chkErp = document.getElementById('usa_erp_globale');
+  if (chkErp) chkErp.checked = appData.usa_erp_globale;
+  if (document.getElementById('erp_sistema_nome')) document.getElementById('erp_sistema_nome').value = appData.erp_sistema_nome || '';
+  handleGlobalERP();
+
+  // Rigenera la UI
+  renderAziendaBuilder();
+  renderModulesBuilder();
+
+  // Ripristina selezioni Azienda
+  Object.keys(appData.aziendaData).forEach(qid => {
+    const val = appData.aziendaData[qid];
+    if (typeof val === 'object' && val !== null) {
+      if (val.selected) {
+        val.selected.forEach(v => {
+          const cb = document.querySelector(`input[data-qid="${qid}"][value="${v}"]`);
+          if (cb) cb.checked = true;
+        });
+      }
+      const otherInp = document.getElementById(`${qid}_other`);
+      if (otherInp) otherInp.value = val.other || '';
+    } else {
+      const txt = document.getElementById(qid);
+      if (txt) txt.value = val;
+    }
+  });
+
+  // Ripristina selezioni Moduli
+  Object.keys(appData.modulesData).forEach(modId => {
+    const data = appData.modulesData[modId];
+    if (data.active) {
+      const row = document.getElementById(`row-${modId}`);
+      if (row) row.classList.add('is-selected');
+    }
+    const lvl = document.getElementById(`level-${modId}`);
+    if (lvl) lvl.value = data.level || 'VIEW';
+
+    const erp = document.getElementById(`erp-switch-${modId}`);
+    if (erp) erp.checked = !!data.erp;
+
+    if (data.note) {
+      const noteTxt = document.getElementById(`note-${modId}`);
+      if (noteTxt) noteTxt.value = data.note;
+      handleNoteText(modId);
+    }
+  });
+
+  calculateMetrics();
+}
+
+function resetAndHome() {
+  navTo('landing-page');
+  checkDraft();
 }
 
 // Inizializzazione al caricamento
 document.addEventListener('DOMContentLoaded', () => {
-  renderCompanyForm();
-  renderModulesConfig();
+  checkDraft();
+  renderAziendaBuilder();
+  renderModulesBuilder();
 });
