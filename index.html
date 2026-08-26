@@ -30,225 +30,219 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background-color: var(--bg-main); color: var(--text-dark); padding-bottom: 90px; }
 
-    /* HEADER & LOGHI */
+    /* HEADER */
     header {
       background: linear-gradient(135deg, #1A202C 0%, #2A85A8 100%);
       color: white; padding: 15px 20px; text-align: center; position: sticky; top: 0; z-index: 100;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.15); display: flex; flex-direction: column; align-items: center; justify-content: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15); display: flex; flex-direction: column; align-items: center;
     }
     .header-logo { max-height: 48px; margin-bottom: 8px; object-fit: contain; }
     header h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.5px; }
-    header p { font-size: 0.85rem; opacity: 0.85; margin-top: 4px; }
 
     .container { max-width: 1100px; margin: 0 auto; padding: 15px; }
 
-    /* PULSANTI E UTILITY */
-    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 20px; font-size: 0.95rem; font-weight: 600; border-radius: 8px; border: none; cursor: pointer; transition: all 0.2s ease; gap: 8px; text-decoration: none; }
+    /* UTILITY BUTTONS */
+    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 8px; border: none; cursor: pointer; transition: all 0.2s ease; gap: 8px; text-decoration: none; }
     .btn-primary { background-color: var(--primary); color: white; }
     .btn-primary:hover { background-color: var(--primary-dark); }
     .btn-secondary { background-color: #F1F5F9; color: var(--text-dark); border: 1px solid var(--border-color); }
     .btn-secondary:hover { background-color: #E2E8F0; }
+    .btn-xs { padding: 4px 8px; font-size: 0.75rem; border-radius: 6px; }
     .btn-block { width: 100%; }
 
-    /* BARRA NAVIGAZIONE INTERNA FOCUS MODE */
+    /* FOCUS NAVBAR */
     .focus-navbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; background: var(--card-bg); padding: 14px 20px; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border-color); }
-    .btn-back { background: #F1F5F9; border: 1px solid var(--border-color); color: var(--text-dark); font-weight: 600; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; transition: all 0.2s; }
-    .btn-back:hover { background: var(--primary-light); color: var(--primary-dark); border-color: var(--primary); }
+    .btn-back { background: #F1F5F9; border: 1px solid var(--border-color); color: var(--text-dark); font-weight: 600; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; }
+    .btn-back:hover { background: var(--primary-light); color: var(--primary-dark); }
     .focus-title { font-size: 1.15rem; font-weight: 700; color: var(--text-dark); }
 
-    /* VISTE E CARD */
+    /* CARDS & ANIMAZIONI */
     .view-card { background: var(--card-bg); border-radius: var(--radius); padding: 25px; box-shadow: var(--shadow); margin-bottom: 20px; }
     .page-screen { animation: fadeIn 0.25s ease-in-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* ANAGRAFICA OBBLIGATORIA IN ALTO */
+    /* ANAGRAFICA OBBLIGATORIA */
     .anagrafica-card { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); border: 1px solid var(--border-color); }
-    .anagrafica-header { font-size: 1.05rem; font-weight: 700; margin-bottom: 12px; color: var(--text-dark); display: flex; align-items: center; gap: 8px; }
+    .anagrafica-header { font-size: 1.05rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
     .form-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
     .form-group { display: flex; flex-direction: column; gap: 5px; }
     .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
     .form-group label span.req { color: var(--danger); font-weight: bold; }
-    .form-control { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.9rem; transition: border-color 0.2s; }
-    .form-control:focus { outline: none; border-color: var(--primary); }
+    .form-control { width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.9rem; }
+    .form-control:disabled { background-color: #E2E8F0; color: #475569; cursor: not-allowed; }
     .form-control.error { border-color: var(--danger); background-color: #FEF2F2; }
 
-    /* DASHBOARD HUB SWITCHER */
+    /* DASHBOARD HUB */
     .hub-switcher { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
     @media (max-width: 640px) { .hub-switcher { grid-template-columns: 1fr; } }
     .hub-box { background: var(--card-bg); border: 2px solid var(--border-color); border-radius: var(--radius); padding: 30px 20px; cursor: pointer; transition: all 0.25s ease; position: relative; text-align: center; }
     .hub-box:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: var(--shadow); }
-    .hub-box h3 { font-size: 1.25rem; color: var(--text-dark); font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .hub-box p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.4; }
     .hub-badge { position: absolute; top: 15px; right: 15px; font-size: 0.75rem; padding: 4px 10px; border-radius: 12px; font-weight: 700; }
     .hub-badge.pending { background: #FEF3C7; color: #D97706; border: 1px solid #FCD34D; }
     .hub-badge.complete { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
 
-    /* DETTAGLI AZIENDA (ACCORDION FEAT) */
-    .accordion-item { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); margin-bottom: 12px; overflow: hidden; transition: all 0.3s ease; }
+    /* ACCORDIONS (DETTAGLI AZIENDA & CONFIGURATORE) */
+    .accordion-item { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); margin-bottom: 12px; overflow: hidden; }
     .accordion-item.is-completed { background-color: var(--success-bg); border-color: var(--success-border); }
-    .accordion-header { padding: 16px 20px; font-weight: 700; font-size: 1rem; color: var(--text-dark); cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }
-    .accordion-item.is-completed .accordion-header { color: #065F46; }
+    .accordion-header { padding: 16px 20px; font-weight: 700; font-size: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }
     .accordion-header .status-icon { font-size: 0.85rem; font-weight: 600; padding: 3px 10px; border-radius: 12px; background: #E2E8F0; color: var(--text-muted); }
-    .accordion-item.is-completed .accordion-header .status-icon { background: #A7F3D0; color: #047857; }
     .accordion-content { padding: 0 20px 20px 20px; display: none; border-top: 1px solid var(--border-color); background: #FFFFFF; }
-    .accordion-item.is-completed .accordion-content { background: rgba(255,255,255,0.7); }
     .accordion-item.open .accordion-content { display: block; }
-    
-    .az-domanda-group { margin-top: 15px; }
-    .az-domanda-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 8px; color: var(--text-dark); display: flex; align-items: center; gap: 5px; }
-    .az-options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
-    .az-option-label { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; cursor: pointer; background: #F8FAFC; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); }
-    .az-option-label input { width: 16px; height: 16px; accent-color: var(--primary); }
 
-    /* CONFIGURATORE SWAN (SCATOLA ORIGINALE) */
-    .area-title { font-size: 1.1rem; font-weight: 700; color: var(--primary); margin: 20px 0 10px 0; border-bottom: 2px solid var(--primary-light); padding-bottom: 5px; }
-    .funzione-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 15px; margin-bottom: 8px; }
-    .funzione-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-    .funzione-info { flex: 1; }
-    .funzione-name { font-weight: 600; font-size: 0.95rem; }
-    .funzione-path { font-size: 0.78rem; color: var(--text-muted); }
-    .funzione-controls { display: flex; align-items: center; gap: 12px; }
+    /* STRUTTURA SWAN CON NESTING & MENU FISARMONICA */
+    .area-accordion { border: 2px solid var(--primary-light); border-radius: var(--radius); margin-bottom: 15px; background: white; }
+    .area-header { background: var(--primary-light); padding: 14px 18px; font-weight: 700; font-size: 1.05rem; color: var(--primary-dark); display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .area-content { padding: 15px; display: none; }
+    .area-accordion.open .area-content { display: block; }
+
+    .menu-block { background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+    .menu-header { font-weight: 700; font-size: 0.95rem; margin-bottom: 10px; color: var(--text-dark); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; }
+
+    /* FUNZIONE CARDS */
+    .funzione-card { background: white; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 14px; margin-bottom: 8px; position: relative; }
+    .funzione-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .funzione-controls { display: flex; align-items: center; gap: 10px; }
     .permesso-select { padding: 4px 8px; font-size: 0.8rem; border-radius: 6px; border: 1px solid var(--border-color); }
-    .erp-checkbox-wrap { display: flex; align-items: center; gap: 5px; font-size: 0.8rem; font-weight: 600; color: var(--primary-dark); }
     
-    /* FLOATING DOCK & MODAL RIEPILOGO */
-    .dock { position: fixed; bottom: 0; left: 0; right: 0; background: #1A202C; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 15px rgba(0,0,0,0.2); z-index: 200; }
-    .dock-info { display: flex; align-items: center; gap: 15px; }
+    /* GESTIONE NOTE & BADGE NOTA */
+    .btn-note { background: #F1F5F9; border: 1px solid var(--border-color); padding: 4px 8px; font-size: 0.78rem; border-radius: 6px; cursor: pointer; position: relative; }
+    .btn-note.has-note::after { content: ''; position: absolute; top: -3px; right: -3px; width: 8px; height: 8px; background-color: var(--warning); border-radius: 50%; border: 1px solid white; }
+    .note-input-wrap { width: 100%; margin-top: 8px; display: none; }
+    .note-input-wrap.open { display: block; }
+    .note-textarea { width: 100%; padding: 8px; font-size: 0.85rem; border: 1px solid #FCD34D; background-color: #FEFCE8; border-radius: 6px; }
+
+    /* DETTAGLI AZIENDA CON "ALTRO" TEXT INPUT */
+    .az-options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+    .az-option-label { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; cursor: pointer; background: #F8FAFC; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); }
+    .az-altro-input { margin-top: 6px; width: 100%; padding: 6px 10px; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 6px; }
+
+    /* FLOATING DOCK */
+    .dock { position: fixed; bottom: 0; left: 0; right: 0; background: #1A202C; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 200; }
     .dock-taglia { font-weight: 800; font-size: 1.1rem; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; }
     .taglia-S { background: #10B981; color: white; }
     .taglia-M { background: #F59E0B; color: white; }
     .taglia-L { background: #EF4444; color: white; }
-    .dock-days { font-size: 0.9rem; opacity: 0.9; }
 
-    /* MODAL DRAWER */
+    /* MODALI */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-end; z-index: 300; }
     .modal-overlay.active { display: flex; }
-    .modal-drawer { background: white; width: 100%; max-width: 600px; border-radius: 16px 16px 0 0; padding: 25px; max-height: 85vh; overflow-y: auto; animation: slideUp 0.3s ease; }
-    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .modal-drawer { background: white; width: 100%; max-width: 600px; border-radius: 16px 16px 0 0; padding: 25px; max-height: 85vh; overflow-y: auto; }
 
-    /* UTILITY */
     .hidden { display: none !important; }
-    .badge-req { font-size: 0.7rem; background: #FEE2E2; color: #DC2626; padding: 2px 6px; border-radius: 4px; margin-left: 4px; }
-    .loading-spinner { text-align: center; padding: 30px; color: var(--text-muted); font-size: 0.9rem; }
+    .badge-req { font-size: 0.7rem; background: #FEE2E2; color: #DC2626; padding: 2px 6px; border-radius: 4px; }
   </style>
 </head>
 <body>
 
-  <!-- HEADER CON LOGO -->
+  <!-- HEADER -->
   <header>
-    <!-- LOGO HEADER: Inserisci il link dell'immagine nel parametro src -->
     <img src="INSERISCI_LINK_LOGO_QUI.png" alt="SWAN Logo" class="header-logo" onerror="this.style.display='none'">
     <h1>CONFIGURATORE SWAN</h1>
-    <p>Profilazione Aziendale & Stima Dimensionamento Progetto</p>
   </header>
 
   <div class="container">
 
-    <!-- SCHERMATA 1: LANDING PAGE -->
+    <!-- 1. LANDING PAGE -->
     <div id="landing-screen" class="view-card page-screen" style="text-align: center;">
-      <!-- LOGO LANDING PAGE -->
-      <img src="INSERISCI_LINK_LOGO_QUI.png" alt="SWAN Logo" style="max-width: 220px; margin-bottom: 20px;" onerror="this.style.display='none'">
-      
-      <h2 style="font-size: 1.5rem; margin-bottom: 10px;">Benvenuto nel Configuratore</h2>
-      <p style="color: var(--text-muted); margin-bottom: 25px;">Scegli un'opzione per iniziare la profilazione o caricare un preventivo esistente.</p>
+      <img src="INSERISCI_LINK_LOGO_QUI.png" alt="SWAN Logo" style="max-width: 200px; margin-bottom: 20px;" onerror="this.style.display='none'">
+      <h2 style="font-size: 1.5rem; margin-bottom: 10px;">Benvenuto</h2>
+      <p style="color: var(--text-muted); margin-bottom: 25px;">Scegli un'opzione per iniziare.</p>
       
       <div style="display: flex; flex-direction: column; gap: 12px; max-width: 350px; margin: 0 auto;">
-        <button class="btn btn-primary btn-block" onclick="showDashboard()">➕ Nuova Configurazione</button>
+        <button class="btn btn-primary btn-block" onclick="startNewConfig()">➕ Nuova Configurazione</button>
         <button class="btn btn-secondary btn-block" onclick="showLoadModal()">🔍 Recupera Esistente</button>
       </div>
     </div>
 
-    <!-- SCHERMATA 2: DASHBOARD (HUB CENTRALE & ANAGRAFICA) -->
+    <!-- 2. DASHBOARD HUB -->
     <div id="dashboard-screen" class="page-screen hidden">
-      
-      <!-- ANAGRAFICA OBBLIGATORIA (4 CAMPI IN ALTO) -->
       <div class="anagrafica-card">
         <div class="anagrafica-header">
-          📋 Dati Anagrafici di Base <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(* Obbligatori)</span>
+          <span>📋 Dati Anagrafici <span style="font-size:0.75rem; color:var(--text-muted);">(* Obbligatori)</span></span>
+          <span id="loaded-code-tag" class="btn-xs btn-secondary hidden" style="font-weight:bold;"></span>
         </div>
         <div class="form-grid-4">
-          <div class="form-group">
-            <label>Azienda <span class="req">*</span></label>
-            <input type="text" id="input-azienda" class="form-control" placeholder="Nome Azienda Cliente" oninput="saveDraftState()">
-          </div>
-          <div class="form-group">
-            <label>Referente <span class="req">*</span></label>
-            <input type="text" id="input-referente" class="form-control" placeholder="Nome Referente" oninput="saveDraftState()">
-          </div>
-          <div class="form-group">
-            <label>Compilato da <span class="req">*</span></label>
-            <input type="text" id="input-compilatore" class="form-control" placeholder="Nome Compilatore" oninput="saveDraftState()">
-          </div>
-          <div class="form-group">
-            <label>Email <span class="req">*</span></label>
-            <input type="email" id="input-email" class="form-control" placeholder="email@azienda.it" oninput="saveDraftState()">
-          </div>
+          <div class="form-group"><label>Azienda <span class="req">*</span></label><input type="text" id="input-azienda" class="form-control" oninput="saveDraftState()"></div>
+          <div class="form-group"><label>Referente <span class="req">*</span></label><input type="text" id="input-referente" class="form-control" oninput="saveDraftState()"></div>
+          <div class="form-group"><label>Compilato da <span class="req">*</span></label><input type="text" id="input-compilatore" class="form-control" oninput="saveDraftState()"></div>
+          <div class="form-group"><label>Email <span class="req">*</span></label><input type="email" id="input-email" class="form-control" oninput="saveDraftState()"></div>
         </div>
       </div>
 
-      <!-- DUAL-HUB SWITCHER BLOCKS -->
       <div class="hub-switcher">
         <div class="hub-box" onclick="showFocusPage('azienda-screen')">
           <span id="badge-azienda" class="hub-badge pending">Incompleto</span>
           <h3>🏢 DETTAGLI AZIENDA</h3>
-          <p>Profilazione generale, struttura aziendale e requisiti di business.</p>
-          <div style="margin-top: 18px; color: var(--primary); font-weight: 700; font-size: 0.9rem;">Apri Compilazione ➔</div>
+          <p>Profilazione generale e requisiti aziendali.</p>
+          <div style="margin-top: 15px; color: var(--primary); font-weight: 700;">Apri Compilazione ➔</div>
         </div>
         
         <div class="hub-box" onclick="showFocusPage('config-screen')">
           <span id="badge-config" class="hub-badge pending">Taglia -</span>
           <h3>⚙️ CONFIGURAZIONE SWAN</h3>
-          <p>Selezione moduli SWAN, permessi utente e integrazioni ERP.</p>
-          <div style="margin-top: 18px; color: var(--primary); font-weight: 700; font-size: 0.9rem;">Apri Configurazione ➔</div>
+          <p>Selezione moduli SWAN e integrazioni ERP.</p>
+          <div style="margin-top: 15px; color: var(--primary); font-weight: 700;">Apri Configurazione ➔</div>
         </div>
       </div>
-
     </div>
 
-    <!-- SCHERMATA 3: PAGINA DEDICATA - DETTAGLI AZIENDA (FOCUS MODE) -->
+    <!-- 3. FOCUS PAGE: DETTAGLI AZIENDA -->
     <div id="azienda-screen" class="page-screen hidden">
       <div class="focus-navbar">
         <button class="btn-back" onclick="showDashboard()">⬅ Torna alla Dashboard</button>
         <span class="focus-title">🏢 Dettagli Azienda</span>
       </div>
-
       <div class="view-card">
         <div id="azienda-accordion-root">
-          <div class="loading-spinner">Caricamento moduli e domande dal server in corso...</div>
+          <div style="text-align:center; padding:20px; color:var(--text-muted);">Caricamento domande...</div>
         </div>
       </div>
     </div>
 
-    <!-- SCHERMATA 4: PAGINA DEDICATA - CONFIGURAZIONE SWAN (FOCUS MODE) -->
+    <!-- 4. FOCUS PAGE: CONFIGURAZIONE SWAN (GERARCHICA A FISARMONICA) -->
     <div id="config-screen" class="page-screen hidden">
       <div class="focus-navbar">
         <button class="btn-back" onclick="showDashboard()">⬅ Torna alla Dashboard</button>
         <span class="focus-title">⚙️ Configurazione SWAN</span>
       </div>
 
-      <!-- OPZIONI GLOBALI ERP MASTER -->
       <div class="view-card" style="margin-bottom:15px; padding:15px;">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
           <label style="font-weight:600; font-size:0.9rem; display:flex; align-items:center; gap:8px;">
             <input type="checkbox" id="erp-global-toggle" style="width:18px; height:18px; accent-color:var(--primary);" onchange="toggleErpMasterMaster(this.checked)">
             Integrazione ERP Master Attiva
           </label>
-          <input type="text" id="erp-master-name" class="form-control" placeholder="Nome ERP (es. SAP, Metagora, Navision)" style="max-width:250px;" disabled oninput="saveDraftState()">
+          <input type="text" id="erp-master-name" class="form-control" placeholder="Nome ERP (es. SAP, Metagora)" style="max-width:250px;" disabled oninput="saveDraftState()">
         </div>
       </div>
 
       <div id="swan-modules-root">
-        <div class="loading-spinner">Caricamento funzionalità dal server in corso...</div>
+        <div style="text-align:center; padding:20px; color:var(--text-muted);">Caricamento funzionalità...</div>
       </div>
+    </div>
+
+    <!-- 5. SUCCESS PAGE (SCHERMATA FINALE DI CONFERMA CON LOGO ED ID) -->
+    <div id="success-screen" class="view-card page-screen hidden text-center" style="text-align:center; padding:40px 20px;">
+      <img src="INSERISCI_LINK_LOGO_QUI.png" alt="SWAN Logo" style="max-width: 180px; margin-bottom: 20px;" onerror="this.style.display='none'">
+      <div style="font-size: 3rem; margin-bottom: 10px;">🎉</div>
+      <h2 style="font-size: 1.6rem; color: var(--success); margin-bottom: 8px;">Configurazione Inviata con Successo!</h2>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">La scheda di profilazione è stata salvata correttamente nel sistema.</p>
+      
+      <div style="background: #F8FAFC; border: 2px dashed var(--primary); border-radius: 12px; padding: 20px; max-width: 400px; margin: 0 auto 25px auto;">
+        <span style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 5px;">Codice Identificativo Assegnato:</span>
+        <strong id="success-code-display" style="font-size: 1.5rem; color: var(--primary-dark); letter-spacing: 1px;">SWAN-XXXXXX</strong>
+      </div>
+
+      <button class="btn btn-primary" style="padding: 12px 25px;" onclick="resetToHome()">🏠 Torna al Menu Principale</button>
     </div>
 
   </div>
 
-  <!-- FLOATING DOCK IN BASSO (SEMPRE ATTIVO DURANTE LA COMPILAZIONE) -->
+  <!-- FLOATING DOCK -->
   <div id="floating-dock" class="dock hidden">
-    <div class="dock-info">
+    <div>
       <span id="dock-taglia-badge" class="dock-taglia taglia-S">TAGLIA S</span>
-      <span id="dock-days-text" class="dock-days">0.0 Giorni Uomo</span>
+      <span id="dock-days-text" style="font-size:0.9rem; opacity:0.9; margin-left:10px;">0.0 Giorni Uomo</span>
     </div>
     <div style="display:flex; gap:10px;">
       <button class="btn btn-secondary" style="padding:8px 14px; font-size:0.85rem;" onclick="openSummaryModal()">📋 Riepilogo</button>
@@ -256,19 +250,14 @@
     </div>
   </div>
 
-  <!-- MODALE RIEPILOGO & CONFERMA -->
+  <!-- MODALE RIEPILOGO -->
   <div id="summary-modal" class="modal-overlay">
     <div class="modal-drawer">
       <div style="text-align:center; margin-bottom:15px;">
-        <!-- LOGO RIEPILOGO MODAL -->
-        <img src="INSERISCI_LINK_LOGO_QUI.png" alt="SWAN Logo" style="max-height: 45px; margin-bottom: 5px;" onerror="this.style.display='none'">
+        <img src="INSERISCI_LINK_LOGO_QUI.png" alt="Logo" style="max-height:40px; margin-bottom:5px;" onerror="this.style.display='none'">
         <h3 style="font-weight:700;">Riepilogo Configurazione</h3>
       </div>
-      
-      <div id="summary-content-body">
-        <!-- Generato Dinamicamente -->
-      </div>
-
+      <div id="summary-content-body"></div>
       <div style="margin-top:20px; display:flex; gap:10px;">
         <button class="btn btn-secondary btn-block" onclick="closeSummaryModal()">Modifica</button>
         <button class="btn btn-primary btn-block" onclick="executeFinalSubmit()">Conferma e Invia</button>
@@ -276,18 +265,11 @@
     </div>
   </div>
 
-  <!-- MODALE RECUPERO CONFIGURAZIONE -->
+  <!-- MODALE RECUPERO CODICE -->
   <div id="load-modal" class="modal-overlay">
     <div class="modal-drawer">
-      <div style="text-align:center; margin-bottom:10px;">
-        <!-- LOGO MODAL CARICAMENTO -->
-        <img src="INSERISCI_LINK_LOGO_QUI.png" alt="SWAN Logo" style="max-height: 40px;" onerror="this.style.display='none'">
-      </div>
-      <h3 style="font-weight:700; margin-bottom:10px;">Recupera Configurazione Esistente</h3>
-      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:15px;">Inserisci il codice univoco SWAN (es. SWAN-123456) per caricare i dati.</p>
-      
+      <h3 style="font-weight:700; margin-bottom:10px;">Recupera Configurazione</h3>
       <input type="text" id="load-code-input" class="form-control" placeholder="SWAN-XXXXXX" style="margin-bottom:15px; text-transform:uppercase;">
-      
       <div style="display:flex; gap:10px;">
         <button class="btn btn-secondary btn-block" onclick="closeLoadModal()">Annulla</button>
         <button class="btn btn-primary btn-block" onclick="fetchConfigByCode()">Carica</button>
@@ -296,90 +278,50 @@
   </div>
 
   <script>
-    // URL SCRIPT BACKEND (GOOGLESCRIPT)
-    const API_URL = "https://script.google.com/macros/s/AKfycbxNFuhBMPBn9g1ZhVLybwrTEjHMCMqHFuBbjyaz1NLnB9UDmH_YsblQ26l4aFcVXy4/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwcwD4v3p3UaU2Zc22S37k0mN6n-hMvhzE_uH4S1A/exec";
+    let globalStructure = [], meAziendaStructure = [], currentConfigId = null, isConfigLoadedLocked = false;
 
-    // STATO APPLICAZIONE
-    let globalStructure = [];
-    let meAziendaStructure = [];
-    let currentConfigId = null;
+    document.addEventListener("DOMContentLoaded", () => { loadInitialData(); });
 
-    // INIZIALIZZAZIONE
-    document.addEventListener("DOMContentLoaded", () => {
-      loadInitialData();
-    });
-
-    // 1. CARICAMENTO STRUTTURA DAL BACKEND
     function loadInitialData() {
-      // 1. Prova prima a caricare dalla cache locale se esiste
       const cached = localStorage.getItem("swan_structure_cache");
       if (cached) {
         try {
-          const parsed = JSON.parse(cached);
-          if (parsed.moduli && parsed.moduli.length) globalStructure = parsed.moduli;
-          if (parsed.azienda && parsed.azienda.length) meAziendaStructure = parsed.azienda;
+          const p = JSON.parse(cached);
+          if (p.moduli) globalStructure = p.moduli;
+          if (p.azienda) meAziendaStructure = p.azienda;
           renderAll();
-        } catch(e) { console.error("Errore lettura cache", e); }
+        } catch(e) {}
       }
 
-      // 2. Chiamata diretta a Google Apps Script
       if (typeof google !== 'undefined' && google.script && google.script.run) {
-        google.script.run
-          .withSuccessHandler(data => { onStructureLoaded(data); })
-          .withFailureHandler(err => console.error("Errore GAS Moduli:", err))
-          .getStructure();
-
-        google.script.run
-          .withSuccessHandler(data => { onAziendaLoaded(data); })
-          .withFailureHandler(err => console.error("Errore GAS Azienda:", err))
-          .getAziendaStructure();
+        google.script.run.withSuccessHandler(d => { globalStructure = d; updateCache(); renderSwanModules(); restoreDraft(); }).getStructure();
+        google.script.run.withSuccessHandler(d => { meAziendaStructure = d; updateCache(); renderAziendaAccordion(); restoreDraft(); }).getAziendaStructure();
       } else {
-        // Fallback tramite Fetch HTTP per test locali/web standard
-        fetch(API_URL + "?action=getStructure")
-          .then(res => res.json())
-          .then(data => {
-            if (data.moduli) onStructureLoaded(data.moduli);
-            if (data.azienda) onAziendaLoaded(data.azienda);
-            if (Array.isArray(data)) onStructureLoaded(data);
-          })
-          .catch(err => {
-            console.warn("Impossibile connettersi al server. Verificare la connessione o l'URL Apps Script.", err);
-          });
+        fetch(API_URL + "?action=getStructure").then(r=>r.json()).then(d=>{
+          if(d.moduli) globalStructure = d.moduli;
+          if(d.azienda) meAziendaStructure = d.azienda;
+          updateCache(); renderAll();
+        }).catch(e=>console.warn("Offline fallback"));
       }
     }
 
-    function onStructureLoaded(data) {
-      if (data && data.length) {
-        globalStructure = data;
-        updateCache();
-        renderSwanModules();
-        restoreDraft();
-      }
+    function updateCache() { localStorage.setItem("swan_structure_cache", JSON.stringify({ moduli: globalStructure, azienda: meAziendaStructure })); }
+    function renderAll() { renderAziendaAccordion(); renderSwanModules(); restoreDraft(); }
+
+    function startNewConfig() {
+      isConfigLoadedLocked = false;
+      currentConfigId = null;
+      ['input-azienda','input-referente','input-compilatore','input-email'].forEach(id => {
+        const el = document.getElementById(id);
+        el.disabled = false;
+        el.value = "";
+      });
+      document.getElementById("loaded-code-tag").classList.add("hidden");
+      showDashboard();
     }
 
-    function onAziendaLoaded(data) {
-      if (data && data.length) {
-        meAziendaStructure = data;
-        updateCache();
-        renderAziendaAccordion();
-        restoreDraft();
-      }
-    }
-
-    function updateCache() {
-      localStorage.setItem("swan_structure_cache", JSON.stringify({
-        moduli: globalStructure,
-        azienda: meAziendaStructure
-      }));
-    }
-
-    function renderAll() {
-      if (meAziendaStructure.length) renderAziendaAccordion();
-      if (globalStructure.length) renderSwanModules();
-      restoreDraft();
-    }
-
-    // 2. RENDERING DETTAGLI AZIENDA (ACCORDION AD ALBERO E VERDINO)
+    /* 1. DETTAGLI AZIENDA CON GESTIONE CASSA TESTO "ALTRO" */
     function renderAziendaAccordion() {
       const root = document.getElementById("azienda-accordion-root");
       if (!root || !meAziendaStructure.length) return;
@@ -394,169 +336,195 @@
       });
 
       let html = "";
-      Object.keys(grouped).forEach((argomento, idx) => {
+      Object.keys(grouped).forEach((arg, idx) => {
         const argId = `arg-${idx}`;
-        html += `
-          <div class="accordion-item" id="${argId}">
-            <div class="accordion-header" onclick="toggleAccordion('${argId}')">
-              <span>📂 ${argomento}</span>
-              <span class="status-icon" id="status-${argId}">Incompleto</span>
-            </div>
-            <div class="accordion-content">
-        `;
+        html += `<div class="accordion-item" id="${argId}">
+          <div class="accordion-header" onclick="toggleAccordion('${argId}')">
+            <span>📂 ${arg}</span><span class="status-icon">Incompleto</span>
+          </div>
+          <div class="accordion-content">`;
 
-        Object.keys(grouped[argomento]).forEach((domanda, dIdx) => {
-          const items = grouped[argomento][domanda];
+        Object.keys(grouped[arg]).forEach((dom, dIdx) => {
+          const items = grouped[arg][dom];
           const isReq = items.some(i => i.obbligatorio === "SI");
           const inputType = items[0].tipo || "text";
 
-          html += `
-            <div class="az-domanda-group">
-              <div class="az-domanda-title">
-                ${domanda} ${isReq ? '<span class="badge-req">Obbligatorio</span>' : ''}
-              </div>
-          `;
+          html += `<div style="margin-top:15px;"><div style="font-weight:600; font-size:0.9rem;">${dom} ${isReq?'<span class="badge-req">Obbligatorio</span>':''}</div>`;
 
           if (inputType === "checkbox" || inputType === "radio" || inputType === "multi choice") {
             html += `<div class="az-options-grid">`;
-            items.forEach((item, oIdx) => {
-              const inputId = `az_${idx}_${dIdx}_${oIdx}`;
-              const fieldName = `az_${argomento}_${domanda}`.replace(/\s+/g, '_');
-              html += `
+            items.forEach((opt, oIdx) => {
+              const inpId = `az_${idx}_${dIdx}_${oIdx}`;
+              const fieldName = `az_${arg}_${dom}`.replace(/\s+/g, '_');
+              const isAltro = opt.opzione.toLowerCase().includes("altro");
+
+              html += `<div>
                 <label class="az-option-label">
-                  <input type="${inputType === 'checkbox' ? 'checkbox' : 'radio'}" 
-                         name="${fieldName}" 
-                         id="${inputId}" 
-                         value="${item.opzione}" 
-                         onchange="validateAziendaProgress(); saveDraftState();">
-                  <span>${item.opzione}</span>
+                  <input type="${inputType === 'checkbox' ? 'checkbox' : 'radio'}" name="${fieldName}" id="${inpId}" value="${opt.opzione}" onchange="toggleAltroText('${inpId}_txt', this.checked); validateAzProgress(); saveDraftState();">
+                  <span>${opt.opzione}</span>
                 </label>
-              `;
+                ${isAltro ? `<input type="text" id="${inpId}_txt" class="az-altro-input hidden" placeholder="Specificare..." oninput="saveDraftState()">` : ''}
+              </div>`;
             });
             html += `</div>`;
           } else {
-            const inputId = `az_${idx}_${dIdx}_text`;
-            html += `
-              <input type="text" id="${inputId}" class="form-control" placeholder="Inserisci risposta..." 
-                     oninput="validateAziendaProgress(); saveDraftState();">
-            `;
+            html += `<input type="text" id="az_${idx}_${dIdx}_text" class="form-control" style="margin-top:5px;" oninput="validateAzProgress(); saveDraftState();">`;
           }
-
           html += `</div>`;
         });
-
-        html += `
-            </div>
-          </div>
-        `;
+        html += `</div></div>`;
       });
-
       root.innerHTML = html;
-      validateAziendaProgress();
+      validateAzProgress();
     }
 
-    function toggleAccordion(id) {
-      const el = document.getElementById(id);
+    function toggleAltroText(txtId, checked) {
+      const el = document.getElementById(txtId);
       if (el) {
-        el.classList.toggle("open");
+        if (checked) el.classList.remove("hidden");
+        else { el.classList.add("hidden"); el.value = ""; }
       }
     }
 
-    function validateAziendaProgress() {
-      let totalArgomenti = 0;
-      let completedArgomenti = 0;
+    function toggleAccordion(id) { document.getElementById(id)?.classList.toggle("open"); }
 
-      const items = document.querySelectorAll(".accordion-item");
+    function validateAzProgress() {
+      const items = document.querySelectorAll("#azienda-accordion-root .accordion-item");
+      let comp = 0, tot = items.length;
       items.forEach(item => {
-        totalArgomenti++;
-        const inputs = item.querySelectorAll("input");
-        let isFilled = false;
-
-        inputs.forEach(inp => {
-          if ((inp.type === "checkbox" || inp.type === "radio") && inp.checked) isFilled = true;
-          if (inp.type === "text" && inp.value.trim() !== "") isFilled = true;
-        });
-
-        const statusBadge = item.querySelector(".status-icon");
-        if (isFilled) {
-          item.classList.add("is-completed");
-          if (statusBadge) statusBadge.textContent = "✓ Completato";
-          completedArgomenti++;
-        } else {
-          item.classList.remove("is-completed");
-          if (statusBadge) statusBadge.textContent = "Incompleto";
-        }
+        let isFilled = Array.from(item.querySelectorAll("input")).some(i => (i.type==='text' && i.value.trim()!=='') || ((i.type==='checkbox'||i.type==='radio') && i.checked));
+        if (isFilled) { item.classList.add("is-completed"); item.querySelector(".status-icon").innerText = "✓ Completo"; comp++; }
+        else { item.classList.remove("is-completed"); item.querySelector(".status-icon").innerText = "Incompleto"; }
       });
-
-      const badgeAzienda = document.getElementById("badge-azienda");
-      if (badgeAzienda) {
-        if (completedArgomenti === totalArgomenti && totalArgomenti > 0) {
-          badgeAzienda.textContent = "✓ Completato";
-          badgeAzienda.className = "hub-badge complete";
-        } else {
-          badgeAzienda.textContent = `${completedArgomenti}/${totalArgomenti} Compilati`;
-          badgeAzienda.className = "hub-badge pending";
-        }
-      }
+      const ba = document.getElementById("badge-azienda");
+      if (ba) { ba.innerText = (comp===tot && tot>0) ? "✓ Completato" : `${comp}/${tot} Compilati`; ba.className = "hub-badge " + (comp===tot && tot>0 ? "complete" : "pending"); }
     }
 
-    // 3. RENDERING MODULI SWAN (CALCOLATORE)
+    /* 2. CONFIGURATORE SWAN GERARCHICO CON NOTE E PERMESSI VIEW/CHECK/FULL */
     function renderSwanModules() {
       const root = document.getElementById("swan-modules-root");
       if (!root || !globalStructure.length) return;
 
       const grouped = {};
       globalStructure.forEach(item => {
-        const key = item.area || "Generale";
-        if (!grouped[key]) grouped[key] = [];
-        grouped[key].push(item);
+        const area = item.area || "Generale";
+        const menu = item.menu || "Generale";
+        if (!grouped[area]) grouped[area] = {};
+        if (!grouped[area][menu]) grouped[area][menu] = [];
+        grouped[area][menu].push(item);
       });
 
       let html = "";
-      Object.keys(grouped).forEach(area => {
-        html += `<div class="area-title">📍 ${area}</div>`;
-        grouped[area].forEach(item => {
-          const fKey = item.funzione;
-          html += `
-            <div class="funzione-card">
-              <div class="funzione-row">
-                <div class="funzione-info">
-                  <div class="funzione-name">
-                    <label style="cursor:pointer;">
-                      <input type="checkbox" id="f_${fKey}" style="margin-right:8px; accent-color:var(--primary);" onchange="recalculateTaglia(); saveDraftState();">
-                      ${fKey}
-                    </label>
-                  </div>
-                  <div class="funzione-path">${item.menu || ''} ${item.sottomenu ? '➔ ' + item.sottomenu : ''}</div>
-                </div>
-
-                <div class="funzione-controls">
-                  <select id="l_${fKey}" class="permesso-select" onchange="saveDraftState()">
-                    <option value="VIEW">VIEW</option>
-                    <option value="EDIT">EDIT</option>
-                  </select>
-
-                  <label class="erp-checkbox-wrap">
-                    <input type="checkbox" id="e_${fKey}" onchange="recalculateTaglia(); saveDraftState();">
-                    ERP
-                  </label>
-                </div>
+      Object.keys(grouped).forEach((area, aIdx) => {
+        const areaId = `area-${aIdx}`;
+        html += `
+          <div class="area-accordion open" id="${areaId}">
+            <div class="area-header" onclick="toggleArea('${areaId}')">
+              <span>📍 Area: ${area}</span>
+              <div onclick="event.stopPropagation();">
+                <button class="btn btn-xs btn-secondary" onclick="toggleSelectGroup('area', '${areaId}', true)">Seleziona Tutto</button>
+                <button class="btn btn-xs btn-secondary" onclick="toggleSelectGroup('area', '${areaId}', false)">Deseleziona</button>
               </div>
             </div>
-          `;
+            <div class="area-content">`;
+
+        Object.keys(grouped[area]).forEach((menu, mIdx) => {
+          const menuId = `${areaId}-m-${mIdx}`;
+          html += `
+            <div class="menu-block" id="${menuId}">
+              <div class="menu-header">
+                <span>📁 Menu: ${menu}</span>
+                <div>
+                  <button class="btn btn-xs btn-secondary" onclick="toggleSelectGroup('menu', '${menuId}', true)">Tutto</button>
+                  <button class="btn btn-xs btn-secondary" onclick="toggleSelectGroup('menu', '${menuId}', false)">Nessuno</button>
+                </div>
+              </div>`;
+
+          grouped[area][menu].forEach(item => {
+            const fKey = item.funzione;
+            html += `
+              <div class="funzione-card">
+                <div class="funzione-row">
+                  <div>
+                    <label style="cursor:pointer; font-weight:600;">
+                      <input type="checkbox" id="f_${fKey}" class="chk-funzione" onchange="recalculateTaglia(); saveDraftState();">
+                      ${fKey}
+                    </label>
+                    ${item.sottomenu ? `<span style="font-size:0.75rem; color:var(--text-muted); margin-left:6px;">(${item.sottomenu})</span>` : ''}
+                  </div>
+
+                  <div class="funzione-controls">
+                    <button id="btn_note_${fKey}" class="btn-note" onclick="toggleNoteField('${fKey}')">📝 Note</button>
+
+                    <select id="l_${fKey}" class="permesso-select" onchange="saveDraftState()">
+                      <option value="VIEW">VIEW</option>
+                      <option value="CHECK">CHECK</option>
+                      <option value="FULL">FULL</option>
+                    </select>
+
+                    <label class="erp-check-wrap hidden" style="font-size:0.8rem; font-weight:bold; color:var(--primary-dark);">
+                      <input type="checkbox" id="e_${fKey}" class="chk-erp" onchange="recalculateTaglia(); saveDraftState();"> ERP
+                    </label>
+                  </div>
+                </div>
+
+                <div id="note_wrap_${fKey}" class="note-input-wrap">
+                  <textarea id="n_${fKey}" class="note-textarea" placeholder="Inserisci note relative a questa funzione..." oninput="updateNoteBadge('${fKey}'); saveDraftState();"></textarea>
+                </div>
+              </div>`;
+          });
+          html += `</div>`;
         });
+        html += `</div></div>`;
       });
 
       root.innerHTML = html;
       recalculateTaglia();
     }
 
-    // 4. CALCOLO TAGLIA E GIORNI
+    function toggleArea(id) { document.getElementById(id)?.classList.toggle("open"); }
+
+    function toggleSelectGroup(type, containerId, check) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      const chks = container.querySelectorAll(".chk-funzione");
+      chks.forEach(c => { c.checked = check; });
+      recalculateTaglia(); saveDraftState();
+    }
+
+    function toggleNoteField(fKey) {
+      const wrap = document.getElementById(`note_wrap_${fKey}`);
+      if (wrap) wrap.classList.toggle("open");
+    }
+
+    function updateNoteBadge(fKey) {
+      const txt = document.getElementById(`n_${fKey}`)?.value.trim();
+      const btn = document.getElementById(`btn_note_${fKey}`);
+      if (btn) {
+        if (txt) btn.classList.add("has-note");
+        else btn.classList.remove("has-note");
+      }
+    }
+
+    function toggleErpMasterMaster(checked) {
+      const nameInput = document.getElementById("erp-master-name");
+      nameInput.disabled = !checked;
+      if (!checked) nameInput.value = "";
+
+      const erpWraps = document.querySelectorAll(".erp-check-wrap");
+      erpWraps.forEach(w => {
+        if (checked) w.classList.remove("hidden");
+        else {
+          w.classList.add("hidden");
+          const chk = w.querySelector("input");
+          if(chk) chk.checked = false;
+        }
+      });
+      recalculateTaglia(); saveDraftState();
+    }
+
     function recalculateTaglia() {
-      let sviluppo = 0;
-      let dati = 0;
-      let test = 0;
-      let erpCount = 0;
+      let sviluppo = 0, dati = 0, test = 0, erpCount = 0;
       const isGlobalErp = document.getElementById("erp-global-toggle").checked;
 
       globalStructure.forEach(item => {
@@ -567,62 +535,43 @@
           test += (Number(item.test) || 0);
 
           const checkE = document.getElementById('e_' + item.funzione);
-          if (isGlobalErp && checkE && checkE.checked) {
-            erpCount++;
-          }
+          if (isGlobalErp && checkE && checkE.checked) erpCount++;
         }
       });
 
       let tempoTotale = (sviluppo + dati + test) + (erpCount * 1.0);
-      
-      let taglia = "S";
-      if (tempoTotale > 10 && tempoTotale <= 25) taglia = "M";
-      else if (tempoTotale > 25) taglia = "L";
+      let taglia = tempoTotale > 25 ? "L" : (tempoTotale > 10 ? "M" : "S");
 
       const tagliaBadge = document.getElementById("dock-taglia-badge");
-      if (tagliaBadge) {
-        tagliaBadge.textContent = `TAGLIA ${taglia}`;
-        tagliaBadge.className = `dock-taglia taglia-${taglia}`;
-      }
+      if (tagliaBadge) { tagliaBadge.textContent = `TAGLIA ${taglia}`; tagliaBadge.className = `dock-taglia taglia-${taglia}`; }
 
       const daysText = document.getElementById("dock-days-text");
       if (daysText) daysText.textContent = `${tempoTotale.toFixed(1)} Giorni Uomo`;
 
       const badgeConfig = document.getElementById("badge-config");
-      if (badgeConfig) {
-        badgeConfig.textContent = `Taglia ${taglia} (${tempoTotale.toFixed(1)} gg)`;
-        badgeConfig.className = "hub-badge complete";
-      }
+      if (badgeConfig) { badgeConfig.textContent = `Taglia ${taglia} (${tempoTotale.toFixed(1)} gg)`; badgeConfig.className = "hub-badge complete"; }
     }
 
-    // 5. GESTIONE NAVIGAZIONE (FOCUS MODE)
-    function showDashboard() {
-      document.getElementById("landing-screen").classList.add("hidden");
-      document.getElementById("azienda-screen").classList.add("hidden");
-      document.getElementById("config-screen").classList.add("hidden");
-      
-      document.getElementById("dashboard-screen").classList.remove("hidden");
-      document.getElementById("floating-dock").classList.remove("hidden");
-    }
+    /* 3. CARICAMENTO DATI ESISTENTI E BLOCCO CAMPI */
+    function onConfigLoaded(data) {
+      if (!data || data.status === "error") { alert("Codice non trovato!"); return; }
+      closeLoadModal();
 
-    function showFocusPage(pageId) {
-      document.getElementById("dashboard-screen").classList.add("hidden");
-      document.getElementById(pageId).classList.remove("hidden");
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+      currentConfigId = data.config_id || data.id || null;
+      isConfigLoadedLocked = true;
 
-    function toggleErpMasterMaster(checked) {
-      const nameInput = document.getElementById("erp-master-name");
-      nameInput.disabled = !checked;
-      if (!checked) nameInput.value = "";
-      recalculateTaglia();
-      saveDraftState();
-    }
+      // Blocco i 4 campi in alto
+      ['input-azienda','input-referente','input-compilatore','input-email'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.disabled = true;
+      });
 
-    // 6. CACHE & SALVATAGGIO BOZZA
-    function saveDraftState() {
-      const data = collectFormData();
+      const tag = document.getElementById("loaded-code-tag");
+      if(tag) { tag.textContent = `🔒 CODE: ${currentConfigId}`; tag.classList.remove("hidden"); }
+
       localStorage.setItem("swan_draft", JSON.stringify(data));
+      showDashboard();
+      restoreDraft();
     }
 
     function restoreDraft() {
@@ -635,32 +584,39 @@
         if (data.compilatore) document.getElementById("input-compilatore").value = data.compilatore;
         if (data.email) document.getElementById("input-email").value = data.email;
 
+        // Ripristino Dettagli Azienda
+        if (data.dettagli_azienda) {
+          Object.keys(data.dettagli_azienda).forEach(k => {
+            const val = data.dettagli_azienda[k];
+            const el = document.getElementById(k) || document.querySelector(`input[name="${k}"][value="${val}"]`);
+            if (el) {
+              if (el.type === "checkbox" || el.type === "radio") {
+                el.checked = true;
+                const txt = document.getElementById(`${el.id}_txt`);
+                if(txt) { txt.classList.remove("hidden"); if(data.dettagli_azienda[`${el.id}_txt`]) txt.value = data.dettagli_azienda[`${el.id}_txt`]; }
+              } else el.value = val;
+            }
+          });
+        }
+
         if (data.usa_erp_globale) {
           const toggle = document.getElementById("erp-global-toggle");
-          if (toggle) {
-            toggle.checked = true;
-            toggleErpMasterMaster(true);
-            document.getElementById("erp-master-name").value = data.nome_erp_master || "";
-          }
+          if(toggle) { toggle.checked = true; toggleErpMasterMaster(true); document.getElementById("erp-master-name").value = data.nome_erp_master || ""; }
         }
 
         globalStructure.forEach(item => {
-          if (data['f_' + item.funzione]) {
-            const f = document.getElementById('f_' + item.funzione);
-            if (f) f.checked = true;
-          }
-          if (data['e_' + item.funzione]) {
-            const e = document.getElementById('e_' + item.funzione);
-            if (e) e.checked = true;
-          }
-          if (data['l_' + item.funzione]) {
-            const l = document.getElementById('l_' + item.funzione);
-            if (l) l.value = data['l_' + item.funzione];
+          const fKey = item.funzione;
+          if (data['f_' + fKey]) { const f = document.getElementById('f_' + fKey); if (f) f.checked = true; }
+          if (data['e_' + fKey]) { const e = document.getElementById('e_' + fKey); if (e) e.checked = true; }
+          if (data['l_' + fKey]) { const l = document.getElementById('l_' + fKey); if (l) l.value = data['l_' + fKey]; }
+          if (data['n_' + fKey]) {
+            const n = document.getElementById('n_' + fKey);
+            if (n) { n.value = data['n_' + fKey]; updateNoteBadge(fKey); }
           }
         });
 
         recalculateTaglia();
-        validateAziendaProgress();
+        validateAzProgress();
       } catch(e) {}
     }
 
@@ -680,7 +636,9 @@
       azInputs.forEach(inp => {
         if ((inp.type === "checkbox" || inp.type === "radio") && inp.checked) {
           data.dettagli_azienda[inp.name || inp.id] = inp.value;
-        } else if (inp.type === "text" && inp.value.trim() !== "") {
+          const txt = document.getElementById(`${inp.id}_txt`);
+          if (txt && txt.value.trim() !== "") data.dettagli_azienda[`${inp.id}_txt`] = txt.value.trim();
+        } else if (inp.type === "text" && !inp.id.endsWith("_txt") && inp.value.trim() !== "") {
           data.dettagli_azienda[inp.id] = inp.value.trim();
         }
       });
@@ -690,65 +648,56 @@
         const checkF = document.getElementById('f_' + fKey);
         const checkE = document.getElementById('e_' + fKey);
         const selectL = document.getElementById('l_' + fKey);
+        const noteN = document.getElementById('n_' + fKey);
 
         if (checkF && checkF.checked) {
           data['f_' + fKey] = true;
           data['e_' + fKey] = checkE ? checkE.checked : false;
           data['l_' + fKey] = selectL ? selectL.value : "VIEW";
+          if (noteN && noteN.value.trim() !== "") data['n_' + fKey] = noteN.value.trim();
         }
       });
 
       return data;
     }
 
-    // 7. INVIO & MODALI
-    function validateAnagrafica() {
-      const fields = ['input-azienda', 'input-referente', 'input-compilatore', 'input-email'];
-      let valid = true;
-      fields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el && !el.value.trim()) {
-          el.classList.add("error");
-          valid = false;
-        } else if (el) {
-          el.classList.remove("error");
-        }
-      });
-      return valid;
+    /* 4. NAVIGAZIONE E INVIO FINALE CON SUCCESS PAGE */
+    function showDashboard() {
+      ['landing-screen','azienda-screen','config-screen','success-screen'].forEach(id=>document.getElementById(id).classList.add("hidden"));
+      document.getElementById("dashboard-screen").classList.remove("hidden");
+      document.getElementById("floating-dock").classList.remove("hidden");
+    }
+
+    function showFocusPage(pageId) {
+      document.getElementById("dashboard-screen").classList.add("hidden");
+      document.getElementById(pageId).classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetToHome() {
+      localStorage.removeItem("swan_draft");
+      location.reload();
     }
 
     function submitFinalForm() {
-      if (!validateAnagrafica()) {
-        alert("Per favore, compila tutti i 4 campi anagrafici obbligatori in alto prima di proseguire.");
-        showDashboard();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        return;
-      }
+      if (!document.getElementById("input-azienda").value.trim()) { alert("Compila i dati anagrafici prima di proseguire."); showDashboard(); return; }
       openSummaryModal();
     }
 
     function openSummaryModal() {
       const data = collectFormData();
-      const body = document.getElementById("summary-content-body");
-
-      body.innerHTML = `
-        <div style="font-size:0.9rem; line-height:1.6; background:#F8FAFC; padding:15px; border-radius:8px; border:1px solid #E2E8F0;">
+      document.getElementById("summary-content-body").innerHTML = `
+        <div style="font-size:0.9rem; line-height:1.6; background:#F8FAFC; padding:15px; border-radius:8px;">
           <p><strong>Azienda:</strong> ${data.azienda}</p>
           <p><strong>Referente:</strong> ${data.referente}</p>
-          <p><strong>Email:</strong> ${data.email}</p>
-          <p><strong>Compilato da:</strong> ${data.compilatore}</p>
           <hr style="margin:10px 0; border:none; border-top:1px solid #E2E8F0;">
-          <p><strong>Stima Progetto:</strong> ${document.getElementById("dock-taglia-badge")?.textContent || ''} (${document.getElementById("dock-days-text")?.textContent || ''})</p>
-          <p><strong>ERP Master:</strong> ${data.usa_erp_globale ? (data.nome_erp_master || 'ATTIVO') : 'Disattivato'}</p>
+          <p><strong>Stima:</strong> ${document.getElementById("dock-taglia-badge")?.textContent} (${document.getElementById("dock-days-text")?.textContent})</p>
         </div>
       `;
-
       document.getElementById("summary-modal").classList.add("active");
     }
 
-    function closeSummaryModal() {
-      document.getElementById("summary-modal").classList.remove("active");
-    }
+    function closeSummaryModal() { document.getElementById("summary-modal").classList.remove("active"); }
 
     async function executeFinalSubmit() {
       closeSummaryModal();
@@ -758,36 +707,30 @@
         if (typeof google !== 'undefined' && google.script && google.script.run) {
           google.script.run.withSuccessHandler(onSavedSuccess).processForm(payload);
         } else {
-          const res = await fetch(API_URL, {
-            method: "POST",
-            body: JSON.stringify(payload)
-          });
+          const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
           const result = await res.json();
           onSavedSuccess(result);
         }
-      } catch (err) {
-        alert("Errore durante l'invio dei dati: " + err.toString());
-      }
+      } catch (err) { alert("Errore invio: " + err.toString()); }
     }
 
     function onSavedSuccess(res) {
       if (res && res.status === "success") {
-        alert(`Configurazione Salvata con Successo!\n\nCodice Assegnato: ${res.id}\nTaglia: ${res.taglia}\nGiorni Stimati: ${res.giorni} gg`);
         localStorage.removeItem("swan_draft");
-        location.reload();
-      } else {
-        alert("Si è verificato un errore durante il salvataggio.");
-      }
+        document.getElementById("success-code-display").textContent = res.id || "SWAN-COMPLETED";
+        ['landing-screen','dashboard-screen','azienda-screen','config-screen','floating-dock'].forEach(id=>document.getElementById(id).classList.add("hidden"));
+        document.getElementById("success-screen").classList.remove("hidden");
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else alert("Errore nel salvataggio dei dati.");
     }
 
-    // 8. CARICAMENTO DA CODICE
+    function saveDraftState() { localStorage.setItem("swan_draft", JSON.stringify(collectFormData())); }
     function showLoadModal() { document.getElementById("load-modal").classList.add("active"); }
     function closeLoadModal() { document.getElementById("load-modal").classList.remove("active"); }
 
     async function fetchConfigByCode() {
       const code = document.getElementById("load-code-input").value.trim();
       if (!code) return;
-
       try {
         if (typeof google !== 'undefined' && google.script && google.script.run) {
           google.script.run.withSuccessHandler(onConfigLoaded).loadConfigByCode(code);
@@ -796,22 +739,7 @@
           const data = await res.json();
           onConfigLoaded(data);
         }
-      } catch(e) {
-        alert("Errore nel recupero della configurazione.");
-      }
-    }
-
-    function onConfigLoaded(data) {
-      if (!data || data.status === "error") {
-        alert("Codice non trovato!");
-        return;
-      }
-
-      closeLoadModal();
-      currentConfigId = data.config_id || null;
-      localStorage.setItem("swan_draft", JSON.stringify(data));
-      showDashboard();
-      restoreDraft();
+      } catch(e) { alert("Errore nel recupero della configurazione."); }
     }
   </script>
 </body>
