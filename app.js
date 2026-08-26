@@ -9,8 +9,6 @@ let appData = {
 };
 
 // --- STRUTTURA SEZIONE ANAGRAFICA AZIENDA ---
-// Colonna B = label / Domanda
-// Colonna C = options (se popolata -> genera Checkbox, se vuota [] -> genera campo di testo per Colonna D)
 const aziendaStructure = [
   {
     title: "ANAGRAFICA AZIENDA",
@@ -61,7 +59,9 @@ const modulesStructure = [
 function navTo(pageId) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('page-visible'));
   const target = document.getElementById(pageId);
-  if (target) target.classList.add('page-visible');
+  if (target) {
+    target.classList.add('page-visible');
+  }
 
   // Gestione visibilità Dock Bar
   const dock = document.getElementById('main-dock-bar');
@@ -73,7 +73,6 @@ function navTo(pageId) {
     }
   }
 
-  // Aggiorna stato completamento carte nell'Hub se torniamo all'Hub
   if (pageId === 'hub-page') {
     updateHubCardsStatus();
   }
@@ -81,7 +80,9 @@ function navTo(pageId) {
   window.scrollTo(0, 0);
 }
 
-// --- 2. GESTIONE LANDING PAGE & BOZZE ---
+// --- 2. GESTIONE LANDING PAGE & AZIONI BOTTONI ---
+
+// Pulsante "Nuova Configurazione"
 function startNewConfig() {
   appData = {
     config_id: 'SW-' + Math.floor(1000 + Math.random() * 9000),
@@ -92,39 +93,62 @@ function startNewConfig() {
     erp_sistema_nome: ''
   };
 
-  // Reset form e campi
-  document.querySelectorAll('input').forEach(i => { if (i.type === 'text' || i.type === 'email') i.value = ''; });
-  document.getElementById('usa_erp_globale').checked = false;
+  // Reset dei campi di input
+  document.querySelectorAll('input').forEach(i => { 
+    if (i.type === 'text' || i.type === 'email') i.value = ''; 
+  });
+  
+  const chkErp = document.getElementById('usa_erp_globale');
+  if (chkErp) chkErp.checked = false;
   handleGlobalERP();
 
   renderAziendaBuilder();
   renderModulesBuilder();
+  
+  // Apri subito l'Hub
   navTo('hub-page');
 }
 
+// Pulsante "Recupera Esistente" (Mostra/Nasconde il box)
 function toggleRecallBox() {
   const box = document.getElementById('recall-box');
-  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+  if (box) {
+    if (box.style.display === 'none' || box.style.display === '') {
+      box.style.display = 'block';
+    } else {
+      box.style.display = 'none';
+    }
+  }
 }
 
+// Pulsante "Carica Progetto"
 function doRecall() {
-  const input = document.getElementById('recall-input').value.trim().toUpperCase();
-  if (!input) return alert('Inserisci un codice valido!');
+  const inputEl = document.getElementById('recall-input');
+  if (!inputEl) return;
+  
+  const code = inputEl.value.trim().toUpperCase();
+  if (!code) {
+    alert('Inserisci un codice valido (es. SW-1234)!');
+    return;
+  }
 
-  const saved = localStorage.getItem('SWAN_CONFIG_' + input);
+  const saved = localStorage.getItem('SWAN_CONFIG_' + code);
   if (saved) {
     appData = JSON.parse(saved);
     restoreStateToUI();
     navTo('hub-page');
+    alert('Configurazione ' + code + ' recuperata con successo!');
   } else {
-    alert('Nessuna configurazione trovata per il codice: ' + input);
+    alert('Nessuna configurazione trovata con il codice: ' + code);
   }
 }
 
 function checkDraft() {
   const draft = localStorage.getItem('SWAN_DRAFT');
   const btn = document.getElementById('btn-resume-draft');
-  if (draft && btn) btn.style.display = 'inline-block';
+  if (draft && btn) {
+    btn.style.display = 'inline-block';
+  }
 }
 
 function resumeDraft() {
@@ -137,17 +161,16 @@ function resumeDraft() {
 }
 
 function autoSave() {
-  // Raccogli informazioni generali dell'Hub
-  appData.info.azienda = document.getElementById('azienda')?.value || '';
-  appData.info.nome = document.getElementById('nome')?.value || '';
-  appData.info.compilatore = document.getElementById('compilatore')?.value || '';
-  appData.info.email = document.getElementById('email')?.value || '';
-  appData.erp_sistema_nome = document.getElementById('erp_sistema_nome')?.value || '';
+  if (document.getElementById('azienda')) appData.info.azienda = document.getElementById('azienda').value;
+  if (document.getElementById('nome')) appData.info.nome = document.getElementById('nome').value;
+  if (document.getElementById('compilatore')) appData.info.compilatore = document.getElementById('compilatore').value;
+  if (document.getElementById('email')) appData.info.email = document.getElementById('email').value;
+  if (document.getElementById('erp_sistema_nome')) appData.erp_sistema_nome = document.getElementById('erp_sistema_nome').value;
 
   localStorage.setItem('SWAN_DRAFT', JSON.stringify(appData));
 }
 
-// --- 3. RENDER SEZIONE ANAGRAFICA AZIENDA ---
+// --- 3. RENDER ANAGRAFICA AZIENDA ---
 function renderAziendaBuilder() {
   const container = document.getElementById('azienda-builder-container');
   if (!container) return;
@@ -165,7 +188,7 @@ function renderAziendaBuilder() {
               <label>${q.label}</label>
               ${hasOptions ? `
                 <div class="az-options-group-horizontal">
-                  ${q.options.map((opt, idx) => `
+                  ${q.options.map(opt => `
                     <label class="az-option-item-horiz">
                       <input type="checkbox" data-qid="${q.id}" value="${opt}" onchange="saveAziendaInputs(); autoSave();">
                       <span>${opt}</span>
@@ -204,7 +227,7 @@ function saveAziendaInputs() {
   });
 }
 
-// --- 4. RENDER CONFIGURAZIONE MODULI & CHECKBOX ---
+// --- 4. RENDER MODULI SWAN ---
 function renderModulesBuilder() {
   const container = document.getElementById('builder-container');
   if (!container) return;
@@ -295,7 +318,7 @@ function saveModulesInputs() {
   calculateMetrics();
 }
 
-// --- 5. LOGICA CALCOLO TAGLIA & SFORZO ---
+// --- 5. LOGICA METRICHE E ERP ---
 function calculateMetrics() {
   let count = 0;
   Object.values(appData.modulesData).forEach(m => {
@@ -318,7 +341,6 @@ function calculateMetrics() {
   if (elSforzo) elSforzo.innerText = sforzo.toFixed(1) + ' gg';
 }
 
-// --- 6. GESTIONE ERP GLOBALE E APERTURA SEZIONI ---
 function handleGlobalERP() {
   const chk = document.getElementById('usa_erp_globale');
   const masterBox = document.getElementById('nome_erp_master');
@@ -341,14 +363,12 @@ function updateHubCardsStatus() {
   const cardAzienda = document.getElementById('hub-card-azienda');
   const cardConfig = document.getElementById('hub-card-config');
 
-  // Verifica completamento Azienda
   const hasAziendaName = appData.info.azienda || (appData.aziendaData.ragione_sociale && appData.aziendaData.ragione_sociale.length > 0);
   if (cardAzienda) {
     if (hasAziendaName) cardAzienda.classList.add('completed');
     else cardAzienda.classList.remove('completed');
   }
 
-  // Verifica completamento Moduli
   const hasActiveModules = Object.values(appData.modulesData).some(m => m.active);
   if (cardConfig) {
     if (hasActiveModules) cardConfig.classList.add('completed');
@@ -356,21 +376,21 @@ function updateHubCardsStatus() {
   }
 }
 
-// --- 7. SALVATAGGIO CONFIGURAZIONE & RIPRISTINO ---
+// --- 6. SALVATAGGIO & RIPRISTINO ---
 function saveConfiguration() {
   if (!appData.info.azienda) {
-    const nomeInp = prompt("Inserisci il Nome Cliente / Azienda per salvare la configurazione:", "");
+    const nomeInp = prompt("Inserisci il Nome Cliente / Azienda per salvare:", "");
     if (!nomeInp) return alert("Impossibile salvare senza un Nome Azienda.");
     appData.info.azienda = nomeInp;
-    document.getElementById('azienda').value = nomeInp;
+    if (document.getElementById('azienda')) document.getElementById('azienda').value = nomeInp;
   }
 
-  // Salvataggio permanente
   localStorage.setItem('SWAN_CONFIG_' + appData.config_id, JSON.stringify(appData));
   localStorage.removeItem('SWAN_DRAFT');
 
-  // Aggiorna pagina Success
-  document.getElementById('final-id').innerText = appData.config_id;
+  const finalIdEl = document.getElementById('final-id');
+  if (finalIdEl) finalIdEl.innerText = appData.config_id;
+
   const infoBox = document.getElementById('info-success-box');
   if (infoBox) {
     infoBox.innerHTML = `
@@ -384,23 +404,20 @@ function saveConfiguration() {
 }
 
 function restoreStateToUI() {
-  // Ripristina info generali
   if (document.getElementById('azienda')) document.getElementById('azienda').value = appData.info.azienda || '';
   if (document.getElementById('nome')) document.getElementById('nome').value = appData.info.nome || '';
   if (document.getElementById('compilatore')) document.getElementById('compilatore').value = appData.info.compilatore || '';
   if (document.getElementById('email')) document.getElementById('email').value = appData.info.email || '';
   
-  // Ripristina ERP
   const chkErp = document.getElementById('usa_erp_globale');
   if (chkErp) chkErp.checked = appData.usa_erp_globale;
   if (document.getElementById('erp_sistema_nome')) document.getElementById('erp_sistema_nome').value = appData.erp_sistema_nome || '';
   handleGlobalERP();
 
-  // Rigenera la UI
   renderAziendaBuilder();
   renderModulesBuilder();
 
-  // Ripristina selezioni Azienda
+  // Ripristino dati Azienda
   Object.keys(appData.aziendaData).forEach(qid => {
     const val = appData.aziendaData[qid];
     if (typeof val === 'object' && val !== null) {
@@ -418,7 +435,7 @@ function restoreStateToUI() {
     }
   });
 
-  // Ripristina selezioni Moduli
+  // Ripristino dati Moduli
   Object.keys(appData.modulesData).forEach(modId => {
     const data = appData.modulesData[modId];
     if (data.active) {
