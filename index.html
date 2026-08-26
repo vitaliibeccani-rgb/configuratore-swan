@@ -36,7 +36,7 @@
         padding: 0;
     }
 
-    /* Blocco totale dello scroll sul Body per evitare trascinamenti indesiderati */
+    /* Blocco totale dello scroll sul Body */
     body, html { 
         width: 100%;
         height: 100%; 
@@ -73,7 +73,7 @@
         width: 100%; 
         height: 100%; 
         background: var(--bg); 
-        display: none !important; /* Pagina nascosta completamente rimossa dalla vista */
+        display: none !important; 
         overflow: hidden;
         pointer-events: none;
     }
@@ -108,8 +108,8 @@
         flex: 1;
         width: 100%;
         height: 100%;
-        overflow-y: auto !important; /* L'unico punto dove si può scorrere */
-        padding: 20px 15px 120px 15px; /* Spazio extra in fondo per non sovrapporsi al Dock */
+        overflow-y: auto !important;
+        padding: 20px 15px 120px 15px; 
         -webkit-overflow-scrolling: touch;
     }
 
@@ -515,7 +515,7 @@
         background: rgba(0, 0, 0, 0.5); 
         backdrop-filter: blur(4px); 
         opacity: 0; 
-        visibility: hidden; /* Nascosto senza bloccare le animazioni */
+        visibility: hidden; 
         pointer-events: none; 
         transition: opacity 0.3s ease, visibility 0.3s ease; 
         z-index: 100000; 
@@ -534,15 +534,15 @@
         background: #FFFFFF; 
         border-radius: 24px 24px 0 0; 
         padding: 24px; 
-        visibility: hidden; /* Non crea spazio per lo scroll in basso */
-        transform: translateY(100%); /* Parte completamente sotto lo schermo */
+        visibility: hidden; 
+        transform: translateY(100%); 
         transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s ease; 
         z-index: 100001; 
         box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.2); 
     }
     .drawer-card.active { 
         visibility: visible;
-        transform: translateY(0); /* Sale verso l'alto con effetto elastico/fisarmonica */
+        transform: translateY(0); 
     }
     .drawer-handle { 
         width: 40px; height: 5px; background: #E2E8F0; border-radius: 10px; margin: 0 auto 16px auto; 
@@ -855,17 +855,15 @@
   }
 
   function navTo(targetId, direction) {
-  document.querySelectorAll('.page').forEach(p => {
-    if (p.id === targetId) {
-      // 1. Attiva la pagina di destinazione
-      p.className = 'page page-visible';
-      p.scrollTop = 0; // Riporta lo scroll in cima
-    } else {
-      // 2. Nasconde completamente le altre pagine
-      p.className = direction === 'up' ? 'page page-hidden-up' : 'page page-hidden-down';
-    }
-  });
-}
+    document.querySelectorAll('.page').forEach(p => {
+      if (p.id === targetId) {
+        p.className = 'page page-visible';
+        p.scrollTop = 0; 
+      } else {
+        p.className = direction === 'up' ? 'page page-hidden-up' : 'page page-hidden-down';
+      }
+    });
+  }
 
   function toggleRecallBox() {
     const box = document.getElementById('recall-box');
@@ -1030,8 +1028,9 @@
         formData[el.name || el.id] = (el.type === 'checkbox') ? el.checked : el.value;
       }
     });
-// 👇 FORZIAMO LA LETTURA DELL'EMAIL PER SICUREZZA 👇
+
     formData.email = document.getElementById('email') ? document.getElementById('email').value : '';
+    
     fetch(API_URL, {
       method: 'POST',
       body: JSON.stringify(formData)
@@ -1054,43 +1053,41 @@
   }
 
   function doRecall() {
-  // .trim() rimuove gli spazi automatici inseriti dalle tastiere mobile
-  const code = document.getElementById('recall-input').value.toUpperCase().replace(/\s+/g, '');
-  
-  if(!code) {
-    alert("Inserisci un codice valido.");
-    return;
-  }
+    const code = document.getElementById('recall-input').value.toUpperCase().replace(/\s+/g, '');
+    
+    if(!code) {
+      alert("Inserisci un codice valido.");
+      return;
+    }
 
-  // Aggiungiamo il timestamp per evitare che il telefono usi una vecchia risposta in cache
-  const fetchUrl = `${API_URL}?action=loadConfigByCode&code=${encodeURIComponent(code)}&_t=${new Date().getTime()}`;
+    const fetchUrl = `${API_URL}?action=loadConfigByCode&code=${encodeURIComponent(code)}&_t=${new Date().getTime()}`;
 
-  fetch(fetchUrl, { method: 'GET' })
-    .then(res => res.json())
-    .then(res => {
-      if(!res || res.error) { 
-        alert("ID non trovato. Verifica di aver inserito correttamente il codice."); 
-        return; 
-      }
-      
-      navTo('main-app', 'up');
-      buildUI();
-      
-      setTimeout(() => {
-        applyDataToForm(res);
-        document.getElementById('nome').readOnly = true;
-        document.getElementById('azienda').readOnly = true;
-        if(document.getElementById('compilatore')) {
-          document.getElementById('compilatore').value = res.compilatore || '';
-          document.getElementById('compilatore').readOnly = true;
+    fetch(fetchUrl, { method: 'GET' })
+      .then(res => res.json())
+      .then(res => {
+        if(!res || res.error) { 
+          alert("ID non trovato. Verifica di aver inserito correttamente il codice."); 
+          return; 
         }
-      }, 600);
-    })
-    .catch(err => {
-      console.error("Errore recupero dati:", err);
-      alert("Errore durante il recupero della configurazione. Controlla la connessione internet.");
-    });
-}
+        
+        navTo('main-app', 'up');
+        buildUI();
+        
+        setTimeout(() => {
+          applyDataToForm(res);
+          document.getElementById('nome').readOnly = true;
+          document.getElementById('azienda').readOnly = true;
+          if(document.getElementById('compilatore')) {
+            document.getElementById('compilatore').value = res.compilatore || '';
+            document.getElementById('compilatore').readOnly = true;
+          }
+        }, 600);
+      })
+      .catch(err => {
+        console.error("Errore recupero dati:", err);
+        alert("Errore durante il recupero della configurazione. Controlla la connessione internet.");
+      });
+  }
 
   function toggleDrawer(open) {
     const overlay = document.getElementById('drawer-overlay');
