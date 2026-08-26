@@ -8,40 +8,53 @@ let appData = {
   erp_sistema_nome: ''
 };
 
-// --- STRUTTURA ANAGRAFICA AZIENDA (Mappatura colonne B, C, D) ---
-// Se `options` ha degli elementi -> genera checkbox per ogni voce.
-// Se `options` è un array vuoto [] -> genera un solo campo di testo per l'inserimento diretto.
+// --- MAPPATURA EXCEL: COLONNE A, B, C, D, E ---
 const aziendaStructure = [
   {
-    title: "ANAGRAFICA AZIENDA",
-    questions: [
-      { id: "ragione_sociale", label: "RAGIONE SOCIALE / NOME AZIENDA", options: [] },
-      { id: "settore_attivita", label: "SETTORE DI ATTIVITÀ", options: ["Manifatturiero", "Distribuzione / Retail", "Servizi", "Automotive"] }
-    ]
-  },
-  {
-    title: "DEFINIZIONE DELL'AZIENDA",
-    questions: [
-      { 
-        id: "tipologia_azienda", 
-        label: "TIPOLOGIA DELL'AZIENDA *", 
-        // Inserisci qui le voci reali della tua Colonna C:
-        options: ["Produzione", "Commerciale", "Servizi / Assistenza", "B2B", "B2C"],
-        hasOther: true // Genera il campo "Altro / Specificare..." (Colonna D)
+    colonnaA_sezione: "ANAGRAFICA AZIENDA",
+    domande: [
+      {
+        colonnaB_domanda: "RAGIONE SOCIALE / NOME AZIENDA",
+        colonnaC_opzioni: [], // Vuoto -> Campo di testo (Colonna D)
+        colonnaD_tipo: "text",
+        obbligatorio: true  // Colonna E
+      },
+      {
+        colonnaB_domanda: "SETTORE DI ATTIVITÀ",
+        colonnaC_opzioni: ["Manifatturiero", "Distribuzione / Retail", "Servizi", "Automotive"],
+        colonnaD_tipo: "checkbox",
+        obbligatorio: false // Colonna E
       }
     ]
   },
   {
-    title: "PRODOTTI",
-    questions: [
-      { 
-        id: "categorie_prodotti", 
-        label: "CATEGORIE PRODOTTI COMMERCIALIZZATI *", 
-        // Inserisci qui le voci reali della tua Colonna C:
-        options: ["Macchinari", "Elettronica", "Impianti", "Componentistica"],
-        hasOther: true 
+    colonnaA_sezione: "DEFINIZIONE DELL'AZIENDA",
+    domande: [
+      {
+        colonnaB_domanda: "TIPOLOGIA DELL'AZIENDA",
+        colonnaC_opzioni: ["Produzione", "Commerciale", "Servizi / Assistenza", "B2B", "B2C"],
+        colonnaD_tipo: "checkbox",
+        haAltroD: true,     // Se presente l'opzione "Altro / Specificare"
+        obbligatorio: true  // Colonna E (aggiunge * e attiva il controllo verde)
+      }
+    ]
+  },
+  {
+    colonnaA_sezione: "PRODOTTI",
+    domande: [
+      {
+        colonnaB_domanda: "CATEGORIE PRODOTTI COMMERCIALIZZATI",
+        colonnaC_opzioni: ["Macchinari", "Elettronica", "Impianti", "Componentistica"],
+        colonnaD_tipo: "checkbox",
+        haAltroD: true,
+        obbligatorio: true  // Colonna E
       },
-      { id: "note_prodotti", label: "REQUISITI SPECIFICI PRODOTTI", options: [] }
+      {
+        colonnaB_domanda: "REQUISITI SPECIFICI PRODOTTI",
+        colonnaC_opzioni: [], // Vuoto -> Campo di testo (Colonna D)
+        colonnaD_tipo: "text",
+        obbligatorio: false // Colonna E
+      }
     ]
   }
 ];
@@ -70,7 +83,6 @@ function navTo(pageId) {
     target.classList.add('page-visible');
   }
 
-  // Gestione visibilità Dock Bar fissa
   const dock = document.getElementById('main-dock-bar');
   if (dock) {
     if (pageId === 'landing-page' || pageId === 'hub-page' || pageId === 'success-page') {
@@ -100,6 +112,7 @@ function startNewConfig() {
 
   document.querySelectorAll('input').forEach(i => { 
     if (i.type === 'text' || i.type === 'email') i.value = ''; 
+    if (i.type === 'checkbox') i.checked = false;
   });
 
   const chkErp = document.getElementById('usa_erp_globale');
@@ -136,7 +149,7 @@ function doRecall() {
     restoreStateToUI();
     navTo('hub-page');
   } else {
-    alert('Nessuna configurazione trovata con il codice: ' + code);
+    alert('Nessuna configurazione trovata per il codice: ' + code);
   }
 }
 
@@ -167,39 +180,41 @@ function autoSave() {
   localStorage.setItem('SWAN_DRAFT', JSON.stringify(appData));
 }
 
-// --- 3. BUILDER ANAGRAFICA AZIENDA ---
+// --- 3. BUILDER ANAGRAFICA AZIENDA (Mappa Colonne A, B, C, D, E) ---
 function renderAziendaBuilder() {
   const container = document.getElementById('azienda-builder-container');
   if (!container) return;
 
-  container.innerHTML = aziendaStructure.map(sec => `
-    <div class="light-card">
+  container.innerHTML = aziendaStructure.map((sec, secIdx) => `
+    <div class="light-card" id="card-azienda-sec-${secIdx}">
       <div class="light-card-header" style="margin-bottom:12px;">
-        <span>${sec.title}</span>
+        <span>${sec.colonnaA_sezione}</span>
       </div>
       <div>
-        ${sec.questions.map(q => {
-          const hasOptions = q.options && q.options.length > 0;
+        ${sec.domande.map(q => {
+          const haOpzioni = q.colonnaC_opzioni && q.colonnaC_opzioni.length > 0;
+          const labelTesto = q.colonnaB_domanda + (q.obbligatorio ? ' <span style="color:#ef4444;">*</span>' : '');
+          
           return `
             <div class="form-group">
-              <label>${q.label}</label>
-              ${hasOptions ? `
+              <label>${labelTesto}</label>
+              ${haOpzioni ? `
                 <div class="az-options-group-horizontal">
-                  ${q.options.map(opt => `
+                  ${q.colonnaC_opzioni.map(opt => `
                     <label class="az-option-item-horiz">
-                      <input type="checkbox" data-qid="${q.id}" value="${opt}" onchange="saveAziendaInputs(); autoSave();">
+                      <input type="checkbox" data-qid="${q.colonnaB_domanda}" value="${opt}" onchange="saveAziendaInputs(); autoSave(); checkAziendaCompletion();">
                       <span>${opt}</span>
                     </label>
                   `).join('')}
-                  ${q.hasOther ? `
+                  ${q.haAltroD ? `
                     <div class="az-option-item-horiz" style="margin-left:auto;">
                       <span style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">Specificare:</span>
-                      <input type="text" id="${q.id}_other" placeholder="Altro..." style="width:160px; padding:4px 8px; font-size:0.85rem;" oninput="saveAziendaInputs(); autoSave();">
+                      <input type="text" id="${q.colonnaB_domanda}_other" placeholder="Altro..." style="width:160px; padding:4px 8px; font-size:0.85rem;" oninput="saveAziendaInputs(); autoSave(); checkAziendaCompletion();">
                     </div>
                   ` : ''}
                 </div>
               ` : `
-                <input type="text" id="${q.id}" placeholder="Inserisci valore..." oninput="saveAziendaInputs(); autoSave();">
+                <input type="text" id="${q.colonnaB_domanda}" placeholder="Inserisci valore..." oninput="saveAziendaInputs(); autoSave(); checkAziendaCompletion();">
               `}
             </div>
           `;
@@ -207,24 +222,60 @@ function renderAziendaBuilder() {
       </div>
     </div>
   `).join('');
+
+  checkAziendaCompletion();
 }
 
 function saveAziendaInputs() {
   aziendaStructure.forEach(sec => {
-    sec.questions.forEach(q => {
-      if (q.options && q.options.length > 0) {
-        const checked = Array.from(document.querySelectorAll(`input[data-qid="${q.id}"]:checked`)).map(cb => cb.value);
-        const otherVal = document.getElementById(`${q.id}_other`)?.value || '';
-        appData.aziendaData[q.id] = { selected: checked, other: otherVal };
+    sec.domande.forEach(q => {
+      if (q.colonnaC_opzioni && q.colonnaC_opzioni.length > 0) {
+        const checked = Array.from(document.querySelectorAll(`input[data-qid="${q.colonnaB_domanda}"]:checked`)).map(cb => cb.value);
+        const otherVal = document.getElementById(`${q.colonnaB_domanda}_other`)?.value || '';
+        appData.aziendaData[q.colonnaB_domanda] = { selected: checked, other: otherVal };
       } else {
-        const val = document.getElementById(q.id)?.value || '';
-        appData.aziendaData[q.id] = val;
+        const val = document.getElementById(q.colonnaB_domanda)?.value || '';
+        appData.aziendaData[q.colonnaB_domanda] = val;
       }
     });
   });
 }
 
-// --- 4. BUILDER MODULI (Check custom perfettamente integrata con style.css) ---
+// LOGICA SCHEDA VERDE: Controlla se le domande (specie quelle con Colonna E obbligatoria) sono compilate
+function checkAziendaCompletion() {
+  aziendaStructure.forEach((sec, secIdx) => {
+    const card = document.getElementById(`card-azienda-sec-${secIdx}`);
+    if (!card) return;
+
+    let isComplete = true;
+
+    sec.domande.forEach(q => {
+      // Consideriamo principalmente i campi marcati obbligatori (Colonna E), o tutti se non specificato
+      if (q.obbligatorio) {
+        if (q.colonnaC_opzioni && q.colonnaC_opzioni.length > 0) {
+          const checked = document.querySelectorAll(`input[data-qid="${q.colonnaB_domanda}"]:checked`);
+          const otherVal = document.getElementById(`${q.colonnaB_domanda}_other`)?.value.trim();
+          if (checked.length === 0 && (!otherVal || otherVal.length === 0)) {
+            isComplete = false;
+          }
+        } else {
+          const txtVal = document.getElementById(q.colonnaB_domanda)?.value.trim();
+          if (!txtVal || txtVal.length === 0) {
+            isComplete = false;
+          }
+        }
+      }
+    });
+
+    if (isComplete) {
+      card.classList.add('azienda-completed');
+    } else {
+      card.classList.remove('azienda-completed');
+    }
+  });
+}
+
+// --- 4. BUILDER MODULI ---
 function renderModulesBuilder() {
   const container = document.getElementById('builder-container');
   if (!container) return;
@@ -259,7 +310,7 @@ function renderModulesBuilder() {
         </div>
 
         <div class="note-container" id="notebox-${mod.id}">
-          <textarea id="note-${mod.id}" rows="2" placeholder="Inserisci eventuali note per ${mod.title}..." oninput="handleNoteText('${mod.id}'); saveModulesInputs(); autoSave();"></textarea>
+          <textarea id="note-${mod.id}" rows="2" placeholder="Note per ${mod.title}..." oninput="handleNoteText('${mod.id}'); saveModulesInputs(); autoSave();"></textarea>
         </div>
       </div>
     `).join('')}
@@ -357,7 +408,7 @@ function updateHubCardsStatus() {
   const cardAzienda = document.getElementById('hub-card-azienda');
   const cardConfig = document.getElementById('hub-card-config');
 
-  const hasAziendaName = appData.info.azienda || (appData.aziendaData.ragione_sociale && appData.aziendaData.ragione_sociale.length > 0);
+  const hasAziendaName = appData.info.azienda || (appData.aziendaData["RAGIONE SOCIALE / NOME AZIENDA"] && appData.aziendaData["RAGIONE SOCIALE / NOME AZIENDA"].length > 0);
   if (cardAzienda) {
     if (hasAziendaName) cardAzienda.classList.add('completed');
     else cardAzienda.classList.remove('completed');
@@ -446,6 +497,7 @@ function restoreStateToUI() {
     }
   });
 
+  checkAziendaCompletion();
   calculateMetrics();
 }
 
