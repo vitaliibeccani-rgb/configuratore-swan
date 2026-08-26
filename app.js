@@ -8,13 +8,15 @@ let appData = {
   erp_sistema_nome: ''
 };
 
-// --- STRUTTURA ANAGRAFICA AZIENDA ---
+// --- STRUTTURA ANAGRAFICA AZIENDA (Mappatura colonne B, C, D) ---
+// Se `options` ha degli elementi -> genera checkbox per ogni voce.
+// Se `options` è un array vuoto [] -> genera un solo campo di testo per l'inserimento diretto.
 const aziendaStructure = [
   {
     title: "ANAGRAFICA AZIENDA",
     questions: [
       { id: "ragione_sociale", label: "RAGIONE SOCIALE / NOME AZIENDA", options: [] },
-      { id: "settore_attivita", label: "SETTORE DI ATTIVITÀ", options: ["Manifatturiero", "Distribuzione / Retail", "Servizi", "Automotive", "Altro"] }
+      { id: "settore_attivita", label: "SETTORE DI ATTIVITÀ", options: ["Manifatturiero", "Distribuzione / Retail", "Servizi", "Automotive"] }
     ]
   },
   {
@@ -23,8 +25,9 @@ const aziendaStructure = [
       { 
         id: "tipologia_azienda", 
         label: "TIPOLOGIA DELL'AZIENDA *", 
+        // Inserisci qui le voci reali della tua Colonna C:
         options: ["Produzione", "Commerciale", "Servizi / Assistenza", "B2B", "B2C"],
-        hasOther: true 
+        hasOther: true // Genera il campo "Altro / Specificare..." (Colonna D)
       }
     ]
   },
@@ -34,6 +37,7 @@ const aziendaStructure = [
       { 
         id: "categorie_prodotti", 
         label: "CATEGORIE PRODOTTI COMMERCIALIZZATI *", 
+        // Inserisci qui le voci reali della tua Colonna C:
         options: ["Macchinari", "Elettronica", "Impianti", "Componentistica"],
         hasOther: true 
       },
@@ -57,18 +61,16 @@ const modulesStructure = [
 
 // --- 1. NAVIGAZIONE ---
 function navTo(pageId) {
-  const allPages = document.querySelectorAll('.page');
-  allPages.forEach(p => {
+  document.querySelectorAll('.page').forEach(p => {
     p.classList.remove('page-visible');
-    p.style.display = 'none'; // Forza il blocco da JS
   });
 
   const target = document.getElementById(pageId);
   if (target) {
     target.classList.add('page-visible');
-    target.style.display = 'block'; // Mostra la pagina corretta
   }
 
+  // Gestione visibilità Dock Bar fissa
   const dock = document.getElementById('main-dock-bar');
   if (dock) {
     if (pageId === 'landing-page' || pageId === 'hub-page' || pageId === 'success-page') {
@@ -78,10 +80,14 @@ function navTo(pageId) {
     }
   }
 
+  if (pageId === 'hub-page') {
+    updateHubCardsStatus();
+  }
+
   window.scrollTo(0, 0);
 }
 
-// --- 2. AZIONI PULSANTI LANDING PAGE ---
+// --- 2. AZIONI LANDING PAGE ---
 function startNewConfig() {
   appData = {
     config_id: 'SW-' + Math.floor(1000 + Math.random() * 9000),
@@ -130,7 +136,7 @@ function doRecall() {
     restoreStateToUI();
     navTo('hub-page');
   } else {
-    alert('Nessuna configurazione trovata per il codice: ' + code);
+    alert('Nessuna configurazione trovata con il codice: ' + code);
   }
 }
 
@@ -167,15 +173,15 @@ function renderAziendaBuilder() {
   if (!container) return;
 
   container.innerHTML = aziendaStructure.map(sec => `
-    <div class="light-card" style="margin-bottom:15px;">
-      <div class="light-card-header" style="margin-bottom:10px;">
+    <div class="light-card">
+      <div class="light-card-header" style="margin-bottom:12px;">
         <span>${sec.title}</span>
       </div>
       <div>
         ${sec.questions.map(q => {
           const hasOptions = q.options && q.options.length > 0;
           return `
-            <div class="form-group" style="margin-bottom:15px;">
+            <div class="form-group">
               <label>${q.label}</label>
               ${hasOptions ? `
                 <div class="az-options-group-horizontal">
@@ -186,9 +192,9 @@ function renderAziendaBuilder() {
                     </label>
                   `).join('')}
                   ${q.hasOther ? `
-                    <div class="az-option-item-horiz">
-                      <span style="font-size:0.8rem; color:var(--text-muted);">Altro:</span>
-                      <input type="text" id="${q.id}_other" placeholder="Specificare..." style="width:140px; padding:4px 8px;" oninput="saveAziendaInputs(); autoSave();">
+                    <div class="az-option-item-horiz" style="margin-left:auto;">
+                      <span style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">Specificare:</span>
+                      <input type="text" id="${q.id}_other" placeholder="Altro..." style="width:160px; padding:4px 8px; font-size:0.85rem;" oninput="saveAziendaInputs(); autoSave();">
                     </div>
                   ` : ''}
                 </div>
@@ -218,13 +224,13 @@ function saveAziendaInputs() {
   });
 }
 
-// --- 4. BUILDER MODULI ---
+// --- 4. BUILDER MODULI (Check custom perfettamente integrata con style.css) ---
 function renderModulesBuilder() {
   const container = document.getElementById('builder-container');
   if (!container) return;
 
   container.innerHTML = modulesStructure.map(cat => `
-    <div style="margin-top:15px; margin-bottom:10px; font-weight:800; font-size:0.85rem; color:var(--text-muted);">${cat.category}</div>
+    <div style="margin-top:15px; margin-bottom:10px; font-weight:800; font-size:0.85rem; color:var(--text-muted); text-transform:uppercase;">${cat.category}</div>
     ${cat.modules.map(mod => `
       <div class="func-row-wrapper" id="row-${mod.id}" onclick="toggleModuleSelection('${mod.id}')">
         <div class="func-row-header">
@@ -253,7 +259,7 @@ function renderModulesBuilder() {
         </div>
 
         <div class="note-container" id="notebox-${mod.id}">
-          <textarea id="note-${mod.id}" placeholder="Inserisci eventuali note per ${mod.title}..." oninput="handleNoteText('${mod.id}'); saveModulesInputs(); autoSave();"></textarea>
+          <textarea id="note-${mod.id}" rows="2" placeholder="Inserisci eventuali note per ${mod.title}..." oninput="handleNoteText('${mod.id}'); saveModulesInputs(); autoSave();"></textarea>
         </div>
       </div>
     `).join('')}
@@ -309,6 +315,7 @@ function saveModulesInputs() {
   calculateMetrics();
 }
 
+// --- 5. LOGICA DOCK BAR & STATI ---
 function calculateMetrics() {
   let count = 0;
   Object.values(appData.modulesData).forEach(m => {
@@ -344,6 +351,23 @@ function openAziendaSection() {
 
 function openConfigSection() {
   navTo('config-app');
+}
+
+function updateHubCardsStatus() {
+  const cardAzienda = document.getElementById('hub-card-azienda');
+  const cardConfig = document.getElementById('hub-card-config');
+
+  const hasAziendaName = appData.info.azienda || (appData.aziendaData.ragione_sociale && appData.aziendaData.ragione_sociale.length > 0);
+  if (cardAzienda) {
+    if (hasAziendaName) cardAzienda.classList.add('completed');
+    else cardAzienda.classList.remove('completed');
+  }
+
+  const hasActiveModules = Object.values(appData.modulesData).some(m => m.active);
+  if (cardConfig) {
+    if (hasActiveModules) cardConfig.classList.add('completed');
+    else cardConfig.classList.remove('completed');
+  }
 }
 
 function saveConfiguration() {
@@ -430,11 +454,9 @@ function resetAndHome() {
   checkDraft();
 }
 
-// --- AGGANCIO EVENTI HARDCODED AL DOM LOAD ---
+// --- AVVIO APP ---
 document.addEventListener('DOMContentLoaded', () => {
-  // Imposta lo stato visivo iniziale
   navTo('landing-page');
-
   checkDraft();
   renderAziendaBuilder();
   renderModulesBuilder();
