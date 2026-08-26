@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Configuratore SWAN</title>
   <link rel="stylesheet" href="style.css">
+  <!-- Libreria SheetJS per leggere i file Excel -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -18,12 +20,18 @@
       <div class="btn-group">
         <button class="btn" onclick="startNewConfig()">Nuova Configurazione</button>
         <button class="btn btn-outline" onclick="toggleRecallBox()">Recupera Esistente</button>
-        <button class="btn btn-outline" id="btn-resume-draft" style="display:none;" onclick="resumeDraft()">Ripristina Bozza</button>
       </div>
 
+      <!-- CARICAMENTO EXCEL -->
+      <div style="margin-top:20px; padding:15px; border:1px dashed var(--card-border); border-radius:8px;">
+        <label style="font-weight:bold; display:block; margin-bottom:8px;">Carica Foglio Excel (AZIENDA):</label>
+        <input type="file" id="excel-file-input" accept=".xlsx, .xls" onchange="leggiFileExcel(event)">
+      </div>
+
+      <!-- BOX RECUPERO CONFIGURAZIONE -->
       <div id="recall-box" style="display:none; margin-top:15px; width:100%; max-width:340px;">
-        <input type="text" id="recall-input" placeholder="Codice ID (es. SW-1234)" style="text-transform:uppercase; margin-bottom:8px; width:100%; padding:10px; border:1px solid var(--card-border); border-radius:8px;">
-        <button class="btn" style="width:100%;" onclick="doRecall()">Carica Progetto</button>
+        <input type="text" id="input-recupera-codice" placeholder="Codice ID (es. SW-1234)" style="text-transform:uppercase; margin-bottom:8px; width:100%; padding:10px; border:1px solid var(--card-border); border-radius:8px;">
+        <button class="btn" style="width:100%;" onclick="recuperaConfigurazione()">Carica Progetto</button>
       </div>
     </div>
   </div>
@@ -37,18 +45,18 @@
 
     <div class="container">
       <div class="fields-grid-4">
-        <div class="form-group"><label>CLIENTE / AZIENDA</label><input type="text" id="azienda" name="azienda" oninput="autoSave()"></div>
-        <div class="form-group"><label>REFERENTE CLIENTE</label><input type="text" id="nome" name="nome" oninput="autoSave()"></div>
-        <div class="form-group"><label>COMPILATO DA</label><input type="text" id="compilatore" name="compilatore" placeholder="Nome PM / Account" oninput="autoSave()"></div>
-        <div class="form-group"><label>EMAIL RECAP</label><input type="email" id="email" name="email" placeholder="cliente@azienda.it" oninput="autoSave()"></div>
+        <div class="form-group"><label>CLIENTE / AZIENDA *</label><input type="text" id="azienda" name="azienda" oninput="autoSave()"></div>
+        <div class="form-group"><label>REFERENTE CLIENTE *</label><input type="text" id="nome" name="nome" oninput="autoSave()"></div>
+        <div class="form-group"><label>COMPILATO DA *</label><input type="text" id="compilatore" name="compilatore" placeholder="Nome PM / Account" oninput="autoSave()"></div>
+        <div class="form-group"><label>EMAIL RECAP *</label><input type="email" id="email" name="email" placeholder="cliente@azienda.it" oninput="autoSave()"></div>
       </div>
 
       <div class="hub-grid">
-        <div class="hub-card" id="hub-card-azienda" onclick="openAziendaSection()">
+        <div class="hub-card" id="hub-card-azienda" onclick="navTo('azienda-page')">
           <h2>DEFINIZIONE AZIENDA</h2>
           <p>Compila le specifiche e la struttura aziendale.</p>
         </div>
-        <div class="hub-card" id="hub-card-config" onclick="openConfigSection()">
+        <div class="hub-card" id="hub-card-config" onclick="navTo('modules-page')">
           <h2>CONFIGURAZIONE MODULI</h2>
           <p>Seleziona le funzionalità SWAN da attivare.</p>
         </div>
@@ -61,7 +69,7 @@
   </div>
 
   <!-- SCHEDA AZIENDA -->
-  <div id="azienda-app" class="page">
+  <div id="azienda-page" class="page">
     <div class="brand-header-center">
       <img src="https://swan-aftersales.com/wp-content/uploads/2021/03/logo-swan.png" alt="Swan Logo" class="brand-logo-img">
       <h1 class="main-page-title">DEFINIZIONE AZIENDA</h1>
@@ -76,7 +84,7 @@
   </div>
 
   <!-- CONFIGURAZIONE MODULI -->
-  <div id="config-app" class="page">
+  <div id="modules-page" class="page">
     <div class="brand-header-center">
       <img src="https://swan-aftersales.com/wp-content/uploads/2021/03/logo-swan.png" alt="Swan Logo" class="brand-logo-img">
       <h1 class="main-page-title">CONFIGURAZIONE MODULI</h1>
@@ -122,7 +130,6 @@
       <h1 class="main-page-title" style="color:var(--salvia-border);">Configurazione Salvata!</h1>
       <p style="color:var(--text-muted);">Codice identificativo del progetto:</p>
       <div style="font-size:2rem; font-weight:bold; color:var(--primary); margin:15px 0;" id="final-id">SW-XXXX</div>
-      <div class="light-card" style="width:100%; max-width:360px; text-align:left;" id="info-success-box"></div>
       <button class="btn" style="width:100%; max-width:360px;" onclick="resetAndHome()">Torna alla Home</button>
     </div>
   </div>
