@@ -1,142 +1,168 @@
 // --- STATO DELL'APPLICAZIONE ---
 const appState = {
   company: {},
-  modules: {
-    erp: { active: false, name: '' },
-    attivazioni: false,
-    garanzie: false,
-    ordini: false
-  }
+  modules: {}
 };
 
-// --- 1. GESTIONE DEFINIZIONE AZIENDA ---
-const companyQuestions = [
-  { id: 'ragioneSociale', label: 'Ragione Sociale / Nome Azienda', type: 'text', placeholder: 'Es. Acme S.r.l.' },
-  { id: 'settore', label: 'Settore Aziendale', type: 'select', options: ['Manifatturiero / Industriale', 'Commercio / Retail', 'Servizi / Consulenza', 'Logistica e Trasporti', 'Altro'] },
-  { id: 'dipendenti', label: 'Numero di Dipendenti', type: 'select', options: ['1 - 10', '11 - 50', '51 - 250', 'Oltre 250'] },
-  { id: 'modelloBusiness', label: 'Modello di Business', type: 'select', options: ['B2B (Business to Business)', 'B2C (Business to Consumer)', 'Ibrido (B2B + B2C)'] },
-  { id: 'noteAzienda', label: 'Obiettivi Principali del Progetto', type: 'textarea', placeholder: 'Inserisci eventuali note o requisiti specifici dell\'azienda...' }
+// --- 1. DATI STRUTTURATI DA EXCEL (Colonna B: Domanda, Colonna C: Opzioni) ---
+const companySections = [
+  {
+    title: "DEFINIZIONE DELL'AZIENDA",
+    questions: [
+      {
+        id: "tipologiaAzienda",
+        label: "TIPOLOGIA DELL'AZIENDA *",
+        // Colonna C: opzioni definite. Se vuota (es. []), renderizza il campo text.
+        options: ["Produzione", "Distribuzione", "Retail", "Servizi", "B2B"],
+        allowCustomText: true // Per consentire il campo "Specificare..."
+      }
+    ]
+  },
+  {
+    title: "PRODOTTI",
+    questions: [
+      {
+        id: "categorieProdotti",
+        label: "CATEGORIE PRODOTTI COMMERCIALIZZATI *",
+        options: ["Elettronica", "Meccanica", "Abbigliamento"],
+        allowCustomText: true
+      },
+      {
+        id: "noteSpecifiche",
+        label: "NOTE O REQUISITI SPECIFICI",
+        options: [], // Nessuna opzione in Colonna C -> Genera campo di testo per Colonna D
+        allowCustomText: false
+      }
+    ]
+  }
 ];
 
+// Dati Moduli Console
+const consoleModules = [
+  { id: 'attivazioni', title: 'CONSOLE ATTIVAZIONI' },
+  { id: 'garanzie', title: 'CONSOLE GARANZIE' },
+  { id: 'ordini', title: 'CONSOLE ORDINI' },
+  { id: 'tagliandi', title: 'CONSOLE TAGLIANDI' }
+];
+
+// --- 2. RENDER SEZIONE ANAGRAFICA AZIENDA ---
 function renderCompanyForm() {
   const container = document.getElementById('company-section');
   if (!container) return;
 
-  container.innerHTML = `
+  container.innerHTML = companySections.map(sec => `
     <div class="light-card">
       <div class="light-card-header">
-        <span>Definizione dell'Azienda</span>
+        <span>${sec.title}</span>
       </div>
-      <p class="setting-desc" style="margin-bottom: 15px;">Compila i dati dell'azienda per personalizzare la configurazione.</p>
-      <form id="form-azienda" onsubmit="event.preventDefault();">
-        <div class="fields-grid-4">
-          ${companyQuestions.map(q => {
-            if (q.type === 'text') {
-              return `
-                <div class="form-group">
-                  <label for="${q.id}">${q.label}</label>
-                  <input type="text" id="${q.id}" placeholder="${q.placeholder || ''}" value="${appState.company[q.id] || ''}" oninput="updateCompanyData('${q.id}', this.value)">
-                </div>`;
-            } else if (q.type === 'select') {
-              return `
-                <div class="form-group">
-                  <label for="${q.id}">${q.label}</label>
-                  <select id="${q.id}" class="select-level" onchange="updateCompanyData('${q.id}', this.value)">
-                    <option value="">-- Seleziona --</option>
-                    ${q.options.map(opt => `<option value="${opt}" ${appState.company[q.id] === opt ? 'selected' : ''}>${opt}</option>`).join('')}
-                  </select>
-                </div>`;
-            } else if (q.type === 'textarea') {
-              return `
-                <div class="form-group" style="grid-column: 1 / -1;">
-                  <label for="${q.id}">${q.label}</label>
-                  <textarea id="${q.id}" class="note-container" style="display:block; min-height: 80px;" placeholder="${q.placeholder || ''}" oninput="updateCompanyData('${q.id}', this.value)">${appState.company[q.id] || ''}</textarea>
-                </div>`;
-            }
-          }).join('')}
+      <div style="margin-top: 15px;">
+        ${sec.questions.map(q => renderQuestionField(q)).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderQuestionField(q) {
+  const hasOptions = q.options && q.options.length > 0;
+
+  return `
+    <div class="form-group" style="margin-bottom: 18px;">
+      <label>${q.label}</label>
+      
+      ${hasOptions ? `
+        <!-- Se la Colonna C contiene opzioni -->
+        <div class="az-options-group-horizontal">
+          ${q.options.map((opt, idx) => `
+            <label class="az-option-item-horiz">
+              <input type="checkbox" name="${q.id}" value="${opt}" onchange="updateCompanyData('${q.id}')">
+              <span>${opt}</span>
+            </label>
+          `).join('')}
+          
+          ${q.allowCustomText ? `
+            <div class="az-option-item-horiz" style="margin-left: 10px;">
+              <span style="font-size: 0.8rem; color: var(--text-muted);">Altro / Specificare:</span>
+              <input type="text" class="input-field" style="width: 160px; padding: 4px 8px;" placeholder="Specificare..." oninput="updateCompanyData('${q.id}_custom', this.value)">
+            </div>
+          ` : ''}
         </div>
-      </form>
+      ` : `
+        <!-- Se la Colonna C è VUOTA -> Genera campo di testo (Colonna D) -->
+        <input type="text" class="input-field" placeholder="Inserisci valore..." oninput="updateCompanyData('${q.id}', this.value)">
+      `}
     </div>
   `;
 }
 
-function updateCompanyData(key, value) {
-  appState.company[key] = value;
-  checkCompanyCompletion();
-}
-
-function checkCompanyCompletion() {
-  const card = document.querySelector('#company-section .light-card');
-  if (!card) return;
-  
-  // Consideriamo la sezione completata se la ragione sociale è compilata
-  if (appState.company.ragioneSociale && appState.company.ragioneSociale.trim() !== '') {
-    card.classList.add('azienda-completed');
-  } else {
-    card.classList.remove('azienda-completed');
+function updateCompanyData(key) {
+  // Aggiorna lo stato in base alle opzioni selezionate
+  const checkboxes = document.querySelectorAll(`input[name="${key}"]:checked`);
+  if (checkboxes.length > 0) {
+    appState.company[key] = Array.from(checkboxes).map(cb => cb.value);
   }
 }
 
-// --- 2. GESTIONE SELEZIONE MODULI & HUB CARDS ---
-function toggleCardModule(element, moduleId) {
-  const isSelected = !element.classList.contains('completed');
-  
-  if (isSelected) {
-    element.classList.add('completed');
-  } else {
-    element.classList.remove('completed');
-  }
+// --- 3. RENDER CONFIGURAZIONE MODULI (CON CUSTOM CHECKBOX) ---
+function renderModulesConfig() {
+  const container = document.getElementById('modules-container');
+  if (!container) return;
 
-  if (moduleId === 'erp') {
-    appState.modules.erp.active = isSelected;
-    checkErpButtonCondition();
-  } else {
-    appState.modules[moduleId] = isSelected;
+  container.innerHTML = consoleModules.map(mod => `
+    <div class="func-row-wrapper" id="row-${mod.id}" onclick="toggleModuleRow('${mod.id}')">
+      <div class="func-row-header">
+        <div class="func-title-group">
+          <!-- Quadratino Check Personalizzato (CSS style) -->
+          <div class="custom-check" id="check-${mod.id}">✓</div>
+          <span style="font-size: 0.95rem; font-weight: 700;">${mod.title}</span>
+        </div>
+      </div>
+      
+      <div class="func-sub-controls" onclick="event.stopPropagation();">
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button type="button" class="btn-note" onclick="toggleNote(this)">+ Note</button>
+          <select class="select-level">
+            <option value="VIEW">VIEW</option>
+            <option value="EDIT">EDIT</option>
+          </select>
+        </div>
+        
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 0.75rem; font-weight: 700; color: var(--primary);">ERP</span>
+          <label class="switch">
+            <input type="checkbox" onchange="toggleErpSwitch('${mod.id}', this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="note-container">
+        <textarea placeholder="Inserisci note per ${mod.title}..." oninput="handleNoteInput(this)"></textarea>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Alterna la selezione della riga del modulo
+function toggleModuleRow(modId) {
+  const row = document.getElementById(`row-${modId}`);
+  if (!row) return;
+
+  const isSelected = row.classList.toggle('is-selected');
+  appState.modules[modId] = isSelected;
+}
+
+// Toggle pannello Note
+function toggleNote(btn) {
+  const parent = btn.closest('.func-row-wrapper');
+  if (!parent) return;
+  const noteContainer = parent.querySelector('.note-container');
+  if (noteContainer) {
+    const isVisible = noteContainer.style.display === 'block';
+    noteContainer.style.display = isVisible ? 'none' : 'block';
   }
 }
 
-// --- 3. CONDIZIONE VISIBILITÀ TASTO ERP ---
-function checkErpButtonCondition() {
-  const erpCheckbox = document.getElementById('erp-checkbox');
-  const erpNameInput = document.getElementById('erp-name-input');
-  const erpBtn = document.getElementById('btn-erp-config');
-
-  const isChecked = erpCheckbox ? erpCheckbox.checked : appState.modules.erp.active;
-  const erpName = erpNameInput ? erpNameInput.value.trim() : appState.modules.erp.name;
-
-  if (erpNameInput) {
-    appState.modules.erp.name = erpName;
-  }
-
-  if (erpBtn) {
-    if (isChecked && erpName.length > 0) {
-      erpBtn.style.display = 'inline-flex';
-      erpBtn.classList.remove('hidden');
-    } else {
-      erpBtn.style.display = 'none';
-      erpBtn.classList.add('hidden');
-    }
-  }
-}
-
-// --- 4. GESTIONE NOTE DINAMICHE SU RIGHE FUNZIONALITÀ ---
-function initNoteButtons() {
-  document.addEventListener('click', (e) => {
-    if (e.target && e.target.classList.contains('btn-note')) {
-      e.stopPropagation();
-      const btn = e.target;
-      const parent = btn.closest('.func-row-wrapper') || btn.parentElement;
-      if (parent) {
-        const noteContainer = parent.querySelector('.note-container');
-        if (noteContainer) {
-          const isVisible = noteContainer.style.display === 'block';
-          noteContainer.style.display = isVisible ? 'none' : 'block';
-        }
-      }
-    }
-  });
-}
-
+// Gestione evidenziazione tasto nota
 function handleNoteInput(textarea) {
   const btnNote = textarea.closest('.func-row-wrapper')?.querySelector('.btn-note');
   if (btnNote) {
@@ -148,9 +174,13 @@ function handleNoteInput(textarea) {
   }
 }
 
-// Inizializzazione al caricamento del DOM
+function toggleErpSwitch(modId, isChecked) {
+  if (!appState.modules[modId]) appState.modules[modId] = {};
+  appState.modules[modId].erp = isChecked;
+}
+
+// Inizializzazione al caricamento
 document.addEventListener('DOMContentLoaded', () => {
   renderCompanyForm();
-  checkErpButtonCondition();
-  initNoteButtons();
+  renderModulesConfig();
 });
