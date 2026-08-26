@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SWAN Configurator - AZIENDA</title>
+  <title>SWAN Configurator</title>
   
   <!-- PWA Meta Tags -->
   <link rel="manifest" href="./manifest.json">
@@ -207,7 +207,7 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 12px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
     .form-group {
@@ -223,7 +223,7 @@
       text-transform: uppercase;
     }
 
-    .form-group input, .form-group select {
+    .form-group input, .form-group select, .form-group textarea {
       padding: 10px 12px;
       border-radius: var(--radius-sm);
       border: 1px solid var(--border);
@@ -232,9 +232,66 @@
       background: var(--bg-body);
     }
 
-    .form-group input:focus, .form-group select:focus {
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
       border-color: var(--accent);
       background: var(--surface);
+    }
+
+    /* Navigation Tabs Bar */
+    .tab-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      background: var(--bg-body);
+      padding: 4px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tab-btn.active {
+      background: var(--surface);
+      color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Questions / Azienda Section Cards */
+    .question-card {
+      background: var(--bg-body);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .question-card label.q-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--primary);
+      margin-bottom: 8px;
+      display: block;
     }
 
     /* Areas & Collapsible Groups */
@@ -538,7 +595,7 @@
   <div id="landing-page" class="page page-visible">
     <div class="landing-card">
       <h1 style="font-size:1.8rem; font-weight:800; margin-bottom: 8px;">SWAN CONFIGURATOR</h1>
-      <p style="color: rgba(255,255,255,0.7); font-size:0.9rem; margin-bottom:24px;">Configuratore d'Offerta ERP - Foglio AZIENDA</p>
+      <p style="color: rgba(255,255,255,0.7); font-size:0.9rem; margin-bottom:24px;">Configuratore & Profilazione ERP</p>
 
       <button type="button" class="btn-main" onclick="startNewConfig()">Nuova Configurazione</button>
       <button type="button" class="btn-secondary" id="btn-resume-draft" style="display:none; margin-bottom:12px;" onclick="resumeDraft()">Riprendi Bozza Salvata</button>
@@ -555,8 +612,9 @@
     <div class="sheet-viewport">
       <form id="swanForm" onsubmit="return false;">
         <div class="document-card">
-          <h2 style="font-size:1.2rem; margin-bottom:16px; font-weight:700;">Dati Cliente e Referente</h2>
           
+          <!-- Shared Header: Client Data -->
+          <h2 style="font-size:1.2rem; margin-bottom:16px; font-weight:700;">Dati Cliente e Referente</h2>
           <div class="form-grid">
             <div class="form-group">
               <label>Referente *</label>
@@ -579,21 +637,35 @@
             </div>
           </div>
 
-          <div class="global-erp-box">
-            <div>
-              <strong style="font-size:0.85rem; color:var(--primary);">Attiva ERP Globale</strong>
-              <p style="font-size:0.75rem; color:var(--text-muted);">Imposta tutti i moduli della scheda sul toggle ERP</p>
-            </div>
-            <label class="switch">
-              <input type="checkbox" id="global-erp-toggle" onchange="handleGlobalERP(this)">
-              <span class="slider"></span>
-            </label>
+          <!-- Main Navigation Buttons: AZIENDA / CONFIGURAZIONE -->
+          <div class="tab-bar">
+            <button type="button" class="tab-btn active" id="btn-tab-azienda" onclick="switchTab('azienda')">Azienda</button>
+            <button type="button" class="tab-btn" id="btn-tab-config" onclick="switchTab('configurazione')">Configurazione</button>
           </div>
 
-          <hr style="border:none; border-top:1px solid var(--border); margin:20px 0;">
+          <!-- TAB 1: AZIENDA SECTION -->
+          <div id="tab-azienda-content" class="tab-content active">
+            <div id="azienda-container"></div>
+          </div>
 
-          <!-- Dynamic Modules Container -->
-          <div id="modules-container"></div>
+          <!-- TAB 2: CONFIGURAZIONE SECTION -->
+          <div id="tab-config-content" class="tab-content">
+            <div class="global-erp-box">
+              <div>
+                <strong style="font-size:0.85rem; color:var(--primary);">Attiva ERP Globale</strong>
+                <p style="font-size:0.75rem; color:var(--text-muted);">Imposta tutti i moduli della scheda sul toggle ERP</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="global-erp-toggle" onchange="handleGlobalERP(this)">
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <hr style="border:none; border-top:1px solid var(--border); margin:20px 0;">
+
+            <!-- Dynamic Modules Container -->
+            <div id="modules-container"></div>
+          </div>
 
           <button type="button" id="btn-save" class="btn-main" style="margin-top:24px;" onclick="saveConfiguration()">Salva Configurazione</button>
         </div>
@@ -636,9 +708,8 @@
   </div>
 
 <script>
-  // Puntamento Apps Script con configurazione dinamica per il foglio AZIENDA
+  // Endpoint Google Apps Script
   const API_URL = "https://script.google.com/macros/s/AKfycbx-EXAMPLE_ENDPOINT/exec";
-  const TARGET_SHEET = "AZIENDA";
 
   document.addEventListener("DOMContentLoaded", () => {
     initNetworkMonitor();
@@ -678,12 +749,32 @@
     target.className = 'page page-visible';
   }
 
+  function switchTab(tabName) {
+    const btnAzienda = document.getElementById('btn-tab-azienda');
+    const btnConfig = document.getElementById('btn-tab-config');
+    const contentAzienda = document.getElementById('tab-azienda-content');
+    const contentConfig = document.getElementById('tab-config-content');
+
+    if (tabName === 'azienda') {
+      btnAzienda.classList.add('active');
+      btnConfig.classList.remove('active');
+      contentAzienda.classList.add('active');
+      contentConfig.classList.remove('active');
+    } else {
+      btnConfig.classList.add('active');
+      btnAzienda.classList.remove('active');
+      contentConfig.classList.add('active');
+      contentAzienda.classList.remove('active');
+    }
+  }
+
   function startNewConfig() {
     document.getElementById('swanForm').reset();
     document.getElementById('nome').readOnly = false;
     document.getElementById('azienda').readOnly = false;
     if(document.getElementById('compilatore')) document.getElementById('compilatore').readOnly = false;
     
+    switchTab('azienda');
     buildUI();
     navTo('main-app', 'up');
   }
@@ -720,7 +811,7 @@
           el.value = data[key];
         }
 
-        if (key.startsWith('n_') && data[key].trim() !== '') {
+        if (key.startsWith('n_') && typeof data[key] === 'string' && data[key].trim() !== '') {
           const wrapper = el.closest('.func-row-wrapper');
           if (wrapper) {
             const nt = wrapper.querySelector('.note-container');
@@ -737,34 +828,99 @@
   }
 
   function buildUI() {
+    fetchAziendaQuestions();
+    fetchConfigModules();
+  }
+
+  function fetchAziendaQuestions() {
+    const container = document.getElementById('azienda-container');
+    container.innerHTML = `<p style="text-align:center; padding:20px 0; color:var(--text-muted);">Caricamento scheda Azienda...</p>`;
+
+    fetch(`${API_URL}?action=getAziendaStructure&_t=${new Date().getTime()}`)
+      .then(res => res.json())
+      .then(data => {
+        if (!data || !Array.isArray(data) || data.length === 0) {
+          loadAziendaFromCache();
+          return;
+        }
+        localStorage.setItem('swan_structure_AZIENDA', JSON.stringify(data));
+        renderAziendaQuestions(data);
+      })
+      .catch(err => {
+        console.warn("Errore caricamento Azienda, tento la cache...", err);
+        loadAziendaFromCache();
+      });
+  }
+
+  function loadAziendaFromCache() {
+    const container = document.getElementById('azienda-container');
+    const cached = localStorage.getItem('swan_structure_AZIENDA');
+    if (cached) {
+      renderAziendaQuestions(JSON.parse(cached));
+    } else {
+      container.innerHTML = `<p style="text-align:center; color:var(--danger); padding:10px;">Nessuna domanda trovata per la scheda Azienda.</p>`;
+    }
+  }
+
+  function renderAziendaQuestions(questions) {
+    const container = document.getElementById('azienda-container');
+    container.innerHTML = '';
+
+    questions.forEach((q, idx) => {
+      const fieldId = q.id || `az_q_${idx}`;
+      const title = q.domanda || q.titolo || `Domanda ${idx+1}`;
+      const type = (q.tipo || 'text').toLowerCase();
+      
+      let inputHTML = '';
+      if (type === 'textarea') {
+        inputHTML = `<textarea name="${fieldId}" id="${fieldId}" rows="3" placeholder="Risposta..." oninput="autoSave()"></textarea>`;
+      } else if (type === 'select' && q.opzioni) {
+        const opts = q.opzioni.split(',').map(o => `<option value="${o.trim()}">${o.trim()}</option>`).join('');
+        inputHTML = `<select name="${fieldId}" id="${fieldId}" onchange="autoSave()"><option value="">Seleziona...</option>${opts}</select>`;
+      } else {
+        inputHTML = `<input type="text" name="${fieldId}" id="${fieldId}" placeholder="Risposta..." oninput="autoSave()">`;
+      }
+
+      const cardHTML = `
+        <div class="question-card">
+          <label class="q-title" for="${fieldId}">${title}</label>
+          <div class="form-group">${inputHTML}</div>
+        </div>
+      `;
+      container.insertAdjacentHTML('beforeend', cardHTML);
+    });
+
+    const draft = localStorage.getItem('swan_draft');
+    if (draft) applyDataToForm(JSON.parse(draft));
+  }
+
+  function fetchConfigModules() {
     const container = document.getElementById('modules-container');
-    container.innerHTML = `<p style="text-align:center; padding:30px 0; color:var(--text-muted); font-weight:500;">Caricamento struttura dal foglio <strong>${TARGET_SHEET}</strong>...</p>`;
+    container.innerHTML = `<p style="text-align:center; padding:20px 0; color:var(--text-muted);">Caricamento Moduli di Configurazione...</p>`;
 
-    const fetchUrl = `${API_URL}?sheet=${encodeURIComponent(TARGET_SHEET)}&action=getStructure&_t=${new Date().getTime()}`;
-
-    fetch(fetchUrl)
+    fetch(`${API_URL}?action=getConfigStructure&_t=${new Date().getTime()}`)
       .then(res => res.json())
       .then(data => {
         if (!data || !Array.isArray(data) || data.length === 0) {
           loadStructureFromCache();
           return;
         }
-        localStorage.setItem(`swan_structure_${TARGET_SHEET}`, JSON.stringify(data));
+        localStorage.setItem('swan_structure_CONFIG', JSON.stringify(data));
         renderModules(data);
       })
       .catch(err => {
-        console.warn("Errore di rete, tentando il recupero dalla cache...", err);
+        console.warn("Errore caricamento moduli, tento la cache...", err);
         loadStructureFromCache();
       });
   }
 
   function loadStructureFromCache() {
     const container = document.getElementById('modules-container');
-    const cached = localStorage.getItem(`swan_structure_${TARGET_SHEET}`);
+    const cached = localStorage.getItem('swan_structure_CONFIG');
     if (cached) {
       renderModules(JSON.parse(cached));
     } else {
-      container.innerHTML = `<p style="text-align:center; color:var(--danger); padding:20px;">Impossibile recuperare i dati dal foglio <strong>${TARGET_SHEET}</strong> e nessuna cache locale trovata.</p>`;
+      container.innerHTML = `<p style="text-align:center; color:var(--danger); padding:10px;">Nessun modulo trovato per la Configurazione.</p>`;
     }
   }
 
@@ -972,10 +1128,7 @@
     btnSave.innerText = "Salvataggio in corso...";
     btnSave.disabled = true;
 
-    const formData = {
-      targetSheet: TARGET_SHEET
-    };
-
+    const formData = {};
     document.querySelectorAll('#swanForm input, #swanForm select, #swanForm textarea').forEach(el => {
       if (el.name || el.id) {
         formData[el.name || el.id] = (el.type === 'checkbox') ? el.checked : el.value;
@@ -999,7 +1152,7 @@
     })
     .catch(err => {
       console.error("Errore salvataggio:", err);
-      alert("Si è verificato un errore durante il salvataggio. La bozza rimane comunque memorizzata localmente.");
+      alert("Si è verificato un errore durante il salvataggio.");
     })
     .finally(() => {
       btnSave.innerText = "Salva Configurazione";
@@ -1015,7 +1168,7 @@
       return;
     }
 
-    const fetchUrl = `${API_URL}?sheet=${encodeURIComponent(TARGET_SHEET)}&action=loadConfigByCode&code=${encodeURIComponent(code)}&_t=${new Date().getTime()}`;
+    const fetchUrl = `${API_URL}?action=loadConfigByCode&code=${encodeURIComponent(code)}&_t=${new Date().getTime()}`;
 
     fetch(fetchUrl, { method: 'GET' })
       .then(res => res.json())
