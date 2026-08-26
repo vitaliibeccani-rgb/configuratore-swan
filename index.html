@@ -309,30 +309,42 @@
       loadInitialData();
     });
 
-    // 1. CARICAMENTO STRUTTURA DAL BACKEND O CACHE
-    async function loadInitialData() {
+    // 1. CARICAMENTO STRUTTURA DAL BACKEND
+    function loadInitialData() {
+      // 1. Prova prima a caricare dalla cache locale se esiste
       const cached = localStorage.getItem("swan_structure_cache");
       if (cached) {
         try {
           const parsed = JSON.parse(cached);
-          globalStructure = parsed.moduli || [];
-          meAziendaStructure = parsed.azienda || [];
+          if (parsed.moduli && parsed.moduli.length) globalStructure = parsed.moduli;
+          if (parsed.azienda && parsed.azienda.length) meAziendaStructure = parsed.azienda;
           renderAll();
-        } catch(e) { console.error("Cache error", e); }
+        } catch(e) { console.error("Errore lettura cache", e); }
       }
 
-      try {
-        if (typeof google !== 'undefined' && google.script && google.script.run) {
-          google.script.run.withSuccessHandler(onStructureLoaded).getStructure();
-          google.script.run.withSuccessHandler(onAziendaLoaded).getAziendaStructure();
-        } else {
-          const res = await fetch(`?action=getStructure`);
-          const data = await res.json();
-          onStructureLoaded(data.moduli);
-          onAziendaLoaded(data.azienda);
-        }
-      } catch (err) {
-        console.warn("Utilizzo cache offline per le strutture.");
+      // 2. Chiamata diretta a Google Apps Script
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(data => { onStructureLoaded(data); })
+          .withFailureHandler(err => console.error("Errore GAS Moduli:", err))
+          .getStructure();
+
+        google.script.run
+          .withSuccessHandler(data => { onAziendaLoaded(data); })
+          .withFailureHandler(err => console.error("Errore GAS Azienda:", err))
+          .getAziendaStructure();
+      } else {
+        // Fallback tramite Fetch HTTP per test locali/web standard
+        fetch(API_URL + "?action=getStructure")
+          .then(res => res.json())
+          .then(data => {
+            if (data.moduli) onStructureLoaded(data.moduli);
+            if (data.azienda) onAziendaLoaded(data.azienda);
+            if (Array.isArray(data)) onStructureLoaded(data);
+          })
+          .catch(err => {
+            console.warn("Impossibile connettersi al server. Verificare la connessione o l'URL Apps Script.", err);
+          });
       }
     }
 
@@ -341,6 +353,7 @@
         globalStructure = data;
         updateCache();
         renderSwanModules();
+        restoreDraft();
       }
     }
 
@@ -349,6 +362,7 @@
         meAziendaStructure = data;
         updateCache();
         renderAziendaAccordion();
+        restoreDraft();
       }
     }
 
@@ -360,8 +374,8 @@
     }
 
     function renderAll() {
-      renderAziendaAccordion();
-      renderSwanModules();
+      if (meAziendaStructure.length) renderAziendaAccordion();
+      if (globalStructure.length) renderSwanModules();
       restoreDraft();
     }
 
@@ -513,7 +527,7 @@
                       ${fKey}
                     </label>
                   </div>
-                  <div class="funzione-path">${item.menu} ${item.sottomenu ? '➔ ' + item.sottomenu : ''}</div>
+                  <div class="funzione-path">${item.menu || ''} ${item.sottomenu ? '➔ ' + item.sottomenu : ''}</div>
                 </div>
 
                 <div class="funzione-controls">
@@ -548,9 +562,9 @@
       globalStructure.forEach(item => {
         const checkF = document.getElementById('f_' + item.funzione);
         if (checkF && checkF.checked) {
-          sviluppo += item.sviluppo;
-          dati += item.dati;
-          test += item.test;
+          sviluppo += (Number(item.sviluppo) || 0);
+          dati += (Number(item.dati) || 0);
+          test += (Number(item.test) || 0);
 
           const checkE = document.getElementById('e_' + item.funzione);
           if (isGlobalErp && checkE && checkE.checked) {
@@ -566,10 +580,13 @@
       else if (tempoTotale > 25) taglia = "L";
 
       const tagliaBadge = document.getElementById("dock-taglia-badge");
-      tagliaBadge.textContent = `TAGLIA ${taglia}`;
-      tagliaBadge.className = `dock-taglia taglia-${taglia}`;
+      if (tagliaBadge) {
+        tagliaBadge.textContent = `TAGLIA ${taglia}`;
+        tagliaBadge.className = `dock-taglia taglia-${taglia}`;
+      }
 
-      document.getElementById("dock-days-text").textContent = `${tempoTotale.toFixed(1)} Giorni Uomo`;
+      const daysText = document.getElementById("dock-days-text");
+      if (daysText) daysText.textContent = `${tempoTotale.toFixed(1)} Giorni Uomo`;
 
       const badgeConfig = document.getElementById("badge-config");
       if (badgeConfig) {
@@ -620,9 +637,11 @@
 
         if (data.usa_erp_globale) {
           const toggle = document.getElementById("erp-global-toggle");
-          toggle.checked = true;
-          toggleErpMasterMaster(true);
-          document.getElementById("erp-master-name").value = data.nome_erp_master || "";
+          if (toggle) {
+            toggle.checked = true;
+            toggleErpMasterMaster(true);
+            document.getElementById("erp-master-name").value = data.nome_erp_master || "";
+          }
         }
 
         globalStructure.forEach(item => {
@@ -648,12 +667,12 @@
     function collectFormData() {
       const data = {
         config_id: currentConfigId,
-        azienda: document.getElementById("input-azienda").value.trim(),
-        referente: document.getElementById("input-referente").value.trim(),
-        compilatore: document.getElementById("input-compilatore").value.trim(),
-        email: document.getElementById("input-email").value.trim(),
-        usa_erp_globale: document.getElementById("erp-global-toggle").checked,
-        nome_erp_master: document.getElementById("erp-master-name").value.trim(),
+        azienda: document.getElementById("input-azienda")?.value.trim() || "",
+        referente: document.getElementById("input-referente")?.value.trim() || "",
+        compilatore: document.getElementById("input-compilatore")?.value.trim() || "",
+        email: document.getElementById("input-email")?.value.trim() || "",
+        usa_erp_globale: document.getElementById("erp-global-toggle")?.checked || false,
+        nome_erp_master: document.getElementById("erp-master-name")?.value.trim() || "",
         dettagli_azienda: {}
       };
 
@@ -688,10 +707,10 @@
       let valid = true;
       fields.forEach(id => {
         const el = document.getElementById(id);
-        if (!el.value.trim()) {
+        if (el && !el.value.trim()) {
           el.classList.add("error");
           valid = false;
-        } else {
+        } else if (el) {
           el.classList.remove("error");
         }
       });
@@ -719,7 +738,7 @@
           <p><strong>Email:</strong> ${data.email}</p>
           <p><strong>Compilato da:</strong> ${data.compilatore}</p>
           <hr style="margin:10px 0; border:none; border-top:1px solid #E2E8F0;">
-          <p><strong>Stima Progetto:</strong> ${document.getElementById("dock-taglia-badge").textContent} (${document.getElementById("dock-days-text").textContent})</p>
+          <p><strong>Stima Progetto:</strong> ${document.getElementById("dock-taglia-badge")?.textContent || ''} (${document.getElementById("dock-days-text")?.textContent || ''})</p>
           <p><strong>ERP Master:</strong> ${data.usa_erp_globale ? (data.nome_erp_master || 'ATTIVO') : 'Disattivato'}</p>
         </div>
       `;
@@ -773,7 +792,7 @@
         if (typeof google !== 'undefined' && google.script && google.script.run) {
           google.script.run.withSuccessHandler(onConfigLoaded).loadConfigByCode(code);
         } else {
-          const res = await fetch(`?action=loadConfigByCode&code=${encodeURIComponent(code)}`);
+          const res = await fetch(`${API_URL}?action=loadConfigByCode&code=${encodeURIComponent(code)}`);
           const data = await res.json();
           onConfigLoaded(data);
         }
