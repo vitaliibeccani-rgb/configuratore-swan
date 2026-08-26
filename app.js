@@ -8,7 +8,7 @@ let appData = {
   erp_sistema_nome: ''
 };
 
-// --- STRUTTURA SEZIONE ANAGRAFICA AZIENDA ---
+// --- STRUTTURA ANAGRAFICA AZIENDA ---
 const aziendaStructure = [
   {
     title: "ANAGRAFICA AZIENDA",
@@ -42,7 +42,7 @@ const aziendaStructure = [
   }
 ];
 
-// --- STRUTTURA CONFIGURAZIONE MODULI SWAN ---
+// --- STRUTTURA MODULI SWAN ---
 const modulesStructure = [
   {
     category: "ADMIN / CONSOLE",
@@ -55,15 +55,20 @@ const modulesStructure = [
   }
 ];
 
-// --- 1. NAVIGAZIONE TRA SCHERMATE ---
+// --- 1. NAVIGAZIONE ---
 function navTo(pageId) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('page-visible'));
+  const allPages = document.querySelectorAll('.page');
+  allPages.forEach(p => {
+    p.classList.remove('page-visible');
+    p.style.display = 'none'; // Forza il blocco da JS
+  });
+
   const target = document.getElementById(pageId);
   if (target) {
     target.classList.add('page-visible');
+    target.style.display = 'block'; // Mostra la pagina corretta
   }
 
-  // Gestione visibilità Dock Bar
   const dock = document.getElementById('main-dock-bar');
   if (dock) {
     if (pageId === 'landing-page' || pageId === 'hub-page' || pageId === 'success-page') {
@@ -73,16 +78,10 @@ function navTo(pageId) {
     }
   }
 
-  if (pageId === 'hub-page') {
-    updateHubCardsStatus();
-  }
-
   window.scrollTo(0, 0);
 }
 
-// --- 2. GESTIONE LANDING PAGE & AZIONI BOTTONI ---
-
-// Pulsante "Nuova Configurazione"
+// --- 2. AZIONI PULSANTI LANDING PAGE ---
 function startNewConfig() {
   appData = {
     config_id: 'SW-' + Math.floor(1000 + Math.random() * 9000),
@@ -93,11 +92,10 @@ function startNewConfig() {
     erp_sistema_nome: ''
   };
 
-  // Reset dei campi di input
   document.querySelectorAll('input').forEach(i => { 
     if (i.type === 'text' || i.type === 'email') i.value = ''; 
   });
-  
+
   const chkErp = document.getElementById('usa_erp_globale');
   if (chkErp) chkErp.checked = false;
   handleGlobalERP();
@@ -105,30 +103,24 @@ function startNewConfig() {
   renderAziendaBuilder();
   renderModulesBuilder();
   
-  // Apri subito l'Hub
   navTo('hub-page');
 }
 
-// Pulsante "Recupera Esistente" (Mostra/Nasconde il box)
 function toggleRecallBox() {
   const box = document.getElementById('recall-box');
   if (box) {
-    if (box.style.display === 'none' || box.style.display === '') {
-      box.style.display = 'block';
-    } else {
-      box.style.display = 'none';
-    }
+    const isHidden = box.style.display === 'none' || getComputedStyle(box).display === 'none';
+    box.style.display = isHidden ? 'block' : 'none';
   }
 }
 
-// Pulsante "Carica Progetto"
 function doRecall() {
   const inputEl = document.getElementById('recall-input');
   if (!inputEl) return;
   
   const code = inputEl.value.trim().toUpperCase();
   if (!code) {
-    alert('Inserisci un codice valido (es. SW-1234)!');
+    alert('Inserisci un codice valido!');
     return;
   }
 
@@ -137,9 +129,8 @@ function doRecall() {
     appData = JSON.parse(saved);
     restoreStateToUI();
     navTo('hub-page');
-    alert('Configurazione ' + code + ' recuperata con successo!');
   } else {
-    alert('Nessuna configurazione trovata con il codice: ' + code);
+    alert('Nessuna configurazione trovata per il codice: ' + code);
   }
 }
 
@@ -170,7 +161,7 @@ function autoSave() {
   localStorage.setItem('SWAN_DRAFT', JSON.stringify(appData));
 }
 
-// --- 3. RENDER ANAGRAFICA AZIENDA ---
+// --- 3. BUILDER ANAGRAFICA AZIENDA ---
 function renderAziendaBuilder() {
   const container = document.getElementById('azienda-builder-container');
   if (!container) return;
@@ -227,7 +218,7 @@ function saveAziendaInputs() {
   });
 }
 
-// --- 4. RENDER MODULI SWAN ---
+// --- 4. BUILDER MODULI ---
 function renderModulesBuilder() {
   const container = document.getElementById('builder-container');
   if (!container) return;
@@ -281,7 +272,7 @@ function toggleModuleSelection(modId) {
 function toggleNoteBox(modId) {
   const box = document.getElementById(`notebox-${modId}`);
   if (box) {
-    box.style.display = box.style.display === 'block' ? 'none' : 'block';
+    box.style.display = (box.style.display === 'block') ? 'none' : 'block';
   }
 }
 
@@ -318,7 +309,6 @@ function saveModulesInputs() {
   calculateMetrics();
 }
 
-// --- 5. LOGICA METRICHE E ERP ---
 function calculateMetrics() {
   let count = 0;
   Object.values(appData.modulesData).forEach(m => {
@@ -328,11 +318,8 @@ function calculateMetrics() {
   let taglia = 'Taglia S';
   let sforzo = count * 0.5;
 
-  if (count > 2 && count <= 5) {
-    taglia = 'Taglia M';
-  } else if (count > 5) {
-    taglia = 'Taglia L';
-  }
+  if (count > 2 && count <= 5) taglia = 'Taglia M';
+  else if (count > 5) taglia = 'Taglia L';
 
   const elTaglia = document.getElementById('dock-taglia-val');
   const elSforzo = document.getElementById('dock-sforzo-val');
@@ -359,24 +346,6 @@ function openConfigSection() {
   navTo('config-app');
 }
 
-function updateHubCardsStatus() {
-  const cardAzienda = document.getElementById('hub-card-azienda');
-  const cardConfig = document.getElementById('hub-card-config');
-
-  const hasAziendaName = appData.info.azienda || (appData.aziendaData.ragione_sociale && appData.aziendaData.ragione_sociale.length > 0);
-  if (cardAzienda) {
-    if (hasAziendaName) cardAzienda.classList.add('completed');
-    else cardAzienda.classList.remove('completed');
-  }
-
-  const hasActiveModules = Object.values(appData.modulesData).some(m => m.active);
-  if (cardConfig) {
-    if (hasActiveModules) cardConfig.classList.add('completed');
-    else cardConfig.classList.remove('completed');
-  }
-}
-
-// --- 6. SALVATAGGIO & RIPRISTINO ---
 function saveConfiguration() {
   if (!appData.info.azienda) {
     const nomeInp = prompt("Inserisci il Nome Cliente / Azienda per salvare:", "");
@@ -417,7 +386,6 @@ function restoreStateToUI() {
   renderAziendaBuilder();
   renderModulesBuilder();
 
-  // Ripristino dati Azienda
   Object.keys(appData.aziendaData).forEach(qid => {
     const val = appData.aziendaData[qid];
     if (typeof val === 'object' && val !== null) {
@@ -435,7 +403,6 @@ function restoreStateToUI() {
     }
   });
 
-  // Ripristino dati Moduli
   Object.keys(appData.modulesData).forEach(modId => {
     const data = appData.modulesData[modId];
     if (data.active) {
@@ -463,8 +430,11 @@ function resetAndHome() {
   checkDraft();
 }
 
-// Inizializzazione al caricamento
+// --- AGGANCIO EVENTI HARDCODED AL DOM LOAD ---
 document.addEventListener('DOMContentLoaded', () => {
+  // Imposta lo stato visivo iniziale
+  navTo('landing-page');
+
   checkDraft();
   renderAziendaBuilder();
   renderModulesBuilder();
