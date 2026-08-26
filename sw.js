@@ -1,14 +1,20 @@
-const CACHE_NAME = 'swan-pwa-v2'; // <--- Aggiornato a V2 per forzare il refresh!
+const CACHE_NAME = 'swan-pwa-v3'; // <--- Aggiornato a v3 per caricare style.css e app.js
 
 self.addEventListener('install', e => {
   self.skipWaiting(); // Forza l'attivazione immediata della nuova versione
   e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(['./index.html', './manifest.json']))
+    caches.open(CACHE_NAME).then(cache => cache.addAll([
+      './',
+      './index.html',
+      './style.css',
+      './app.js',
+      './manifest.json'
+    ]))
   );
 });
 
 self.addEventListener('activate', e => {
-  // Pulisce le vecchie cache (elimina la v1)
+  // Pulisce le vecchie cache (elimina la v1, v2, ecc.)
   e.waitUntil(
     caches.keys().then(keys => {
       return Promise.all(
