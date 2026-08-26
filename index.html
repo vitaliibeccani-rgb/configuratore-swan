@@ -30,18 +30,19 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background-color: var(--bg-main); color: var(--text-dark); padding-bottom: 90px; }
 
+    /* HEADER & LOGHI */
     header {
       background: linear-gradient(135deg, #1A202C 0%, #2A85A8 100%);
-      color: white; padding: 20px; text-align: center; position: sticky; top: 0; z-index: 100;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      color: white; padding: 15px 20px; text-align: center; position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15); display: flex; flex-direction: column; align-items: center; justify-content: center;
     }
-    header h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.5px; }
+    .header-logo { max-height: 48px; margin-bottom: 8px; object-fit: contain; }
+    header h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.5px; }
     header p { font-size: 0.85rem; opacity: 0.85; margin-top: 4px; }
 
     .container { max-width: 1100px; margin: 0 auto; padding: 15px; }
 
-    /* LANDING PAGE / MODAL RECUPERO */
-    .view-card { background: var(--card-bg); border-radius: var(--radius); padding: 25px; box-shadow: var(--shadow); margin-bottom: 20px; }
+    /* PULSANTI E UTILITY */
     .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 20px; font-size: 0.95rem; font-weight: 600; border-radius: 8px; border: none; cursor: pointer; transition: all 0.2s ease; gap: 8px; text-decoration: none; }
     .btn-primary { background-color: var(--primary); color: white; }
     .btn-primary:hover { background-color: var(--primary-dark); }
@@ -49,7 +50,18 @@
     .btn-secondary:hover { background-color: #E2E8F0; }
     .btn-block { width: 100%; }
 
-    /* ANAGRAFICA OBBLIGATORIA (IN ALTO) */
+    /* BARRA NAVIGAZIONE INTERNA FOCUS MODE */
+    .focus-navbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; background: var(--card-bg); padding: 14px 20px; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border-color); }
+    .btn-back { background: #F1F5F9; border: 1px solid var(--border-color); color: var(--text-dark); font-weight: 600; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; transition: all 0.2s; }
+    .btn-back:hover { background: var(--primary-light); color: var(--primary-dark); border-color: var(--primary); }
+    .focus-title { font-size: 1.15rem; font-weight: 700; color: var(--text-dark); }
+
+    /* VISTE E CARD */
+    .view-card { background: var(--card-bg); border-radius: var(--radius); padding: 25px; box-shadow: var(--shadow); margin-bottom: 20px; }
+    .page-screen { animation: fadeIn 0.25s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ANAGRAFICA OBBLIGATORIA IN ALTO */
     .anagrafica-card { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); border: 1px solid var(--border-color); }
     .anagrafica-header { font-size: 1.05rem; font-weight: 700; margin-bottom: 12px; color: var(--text-dark); display: flex; align-items: center; gap: 8px; }
     .form-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
@@ -60,17 +72,16 @@
     .form-control:focus { outline: none; border-color: var(--primary); }
     .form-control.error { border-color: var(--danger); background-color: #FEF2F2; }
 
-    /* DUAL-HUB SWITCHER BLOCKS */
-    .hub-switcher { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+    /* DASHBOARD HUB SWITCHER */
+    .hub-switcher { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
     @media (max-width: 640px) { .hub-switcher { grid-template-columns: 1fr; } }
-    .hub-box { background: var(--card-bg); border: 2px solid var(--border-color); border-radius: var(--radius); padding: 20px; cursor: pointer; transition: all 0.25s ease; position: relative; overflow: hidden; }
-    .hub-box:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: var(--shadow); }
-    .hub-box.active { border-color: var(--primary); background: var(--primary-light); }
-    .hub-box h3 { font-size: 1.1rem; color: var(--text-dark); font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
-    .hub-box p { font-size: 0.85rem; color: var(--text-muted); }
-    .hub-badge { position: absolute; top: 15px; right: 15px; font-size: 0.75rem; padding: 4px 8px; border-radius: 12px; font-weight: 700; }
-    .hub-badge.pending { background: #FEF3C7; color: #D97706; }
-    .hub-badge.complete { background: var(--success-bg); color: var(--success); }
+    .hub-box { background: var(--card-bg); border: 2px solid var(--border-color); border-radius: var(--radius); padding: 30px 20px; cursor: pointer; transition: all 0.25s ease; position: relative; text-align: center; }
+    .hub-box:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: var(--shadow); }
+    .hub-box h3 { font-size: 1.25rem; color: var(--text-dark); font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .hub-box p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.4; }
+    .hub-badge { position: absolute; top: 15px; right: 15px; font-size: 0.75rem; padding: 4px 10px; border-radius: 12px; font-weight: 700; }
+    .hub-badge.pending { background: #FEF3C7; color: #D97706; border: 1px solid #FCD34D; }
+    .hub-badge.complete { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
 
     /* DETTAGLI AZIENDA (ACCORDION FEAT) */
     .accordion-item { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); margin-bottom: 12px; overflow: hidden; transition: all 0.3s ease; }
@@ -118,30 +129,37 @@
     /* UTILITY */
     .hidden { display: none !important; }
     .badge-req { font-size: 0.7rem; background: #FEE2E2; color: #DC2626; padding: 2px 6px; border-radius: 4px; margin-left: 4px; }
+    .loading-spinner { text-align: center; padding: 30px; color: var(--text-muted); font-size: 0.9rem; }
   </style>
 </head>
 <body>
 
+  <!-- HEADER CON LOGO -->
   <header>
+    <!-- LOGO HEADER: Inserisci il link dell'immagine nel parametro src -->
+    <img src="INSERISCI_LINK_LOGO_QUI.png" alt="SWAN Logo" class="header-logo" onerror="this.style.display='none'">
     <h1>CONFIGURATORE SWAN</h1>
     <p>Profilazione Aziendale & Stima Dimensionamento Progetto</p>
   </header>
 
   <div class="container">
 
-    <!-- SCHERMATA LANDING / AVVIO -->
-    <div id="landing-screen" class="view-card text-center" style="text-align: center;">
+    <!-- SCHERMATA 1: LANDING PAGE -->
+    <div id="landing-screen" class="view-card page-screen" style="text-align: center;">
+      <!-- LOGO LANDING PAGE -->
+      <img src="INSERISCI_LINK_LOGO_QUI.png" alt="SWAN Logo" style="max-width: 220px; margin-bottom: 20px;" onerror="this.style.display='none'">
+      
       <h2 style="font-size: 1.5rem; margin-bottom: 10px;">Benvenuto nel Configuratore</h2>
       <p style="color: var(--text-muted); margin-bottom: 25px;">Scegli un'opzione per iniziare la profilazione o caricare un preventivo esistente.</p>
       
       <div style="display: flex; flex-direction: column; gap: 12px; max-width: 350px; margin: 0 auto;">
-        <button class="btn btn-primary btn-block" onclick="startNewConfig()">➕ Nuova Configurazione</button>
+        <button class="btn btn-primary btn-block" onclick="showDashboard()">➕ Nuova Configurazione</button>
         <button class="btn btn-secondary btn-block" onclick="showLoadModal()">🔍 Recupera Esistente</button>
       </div>
     </div>
 
-    <!-- MAIN APP DASHBOARD (ANAGRAFICA + DUAL BLOCKS) -->
-    <div id="app-screen" class="hidden">
+    <!-- SCHERMATA 2: DASHBOARD (HUB CENTRALE & ANAGRAFICA) -->
+    <div id="dashboard-screen" class="page-screen hidden">
       
       <!-- ANAGRAFICA OBBLIGATORIA (4 CAMPI IN ALTO) -->
       <div class="anagrafica-card">
@@ -168,52 +186,65 @@
         </div>
       </div>
 
-      <!-- DUAL-HUB SWITCHER BLOCKS (NAVIGAZIONE TRA BLOCCHI) -->
+      <!-- DUAL-HUB SWITCHER BLOCKS -->
       <div class="hub-switcher">
-        <div id="hub-btn-azienda" class="hub-box active" onclick="switchBlock('azienda')">
+        <div class="hub-box" onclick="showFocusPage('azienda-screen')">
           <span id="badge-azienda" class="hub-badge pending">Incompleto</span>
           <h3>🏢 DETTAGLI AZIENDA</h3>
           <p>Profilazione generale, struttura aziendale e requisiti di business.</p>
+          <div style="margin-top: 18px; color: var(--primary); font-weight: 700; font-size: 0.9rem;">Apri Compilazione ➔</div>
         </div>
         
-        <div id="hub-btn-config" class="hub-box" onclick="switchBlock('config')">
+        <div class="hub-box" onclick="showFocusPage('config-screen')">
           <span id="badge-config" class="hub-badge pending">Taglia -</span>
-          <h3>⚙️ CONFIGURAZIONE</h3>
+          <h3>⚙️ CONFIGURAZIONE SWAN</h3>
           <p>Selezione moduli SWAN, permessi utente e integrazioni ERP.</p>
-        </div>
-      </div>
-
-      <!-- BLOCCO 1: DETTAGLI AZIENDA (QUESTIONARIO ACCORDION) -->
-      <div id="block-azienda" class="block-container">
-        <div id="azienda-accordion-root">
-          <!-- Generato Dinamicamente da Backend Sheet 'Azienda' -->
-        </div>
-      </div>
-
-      <!-- BLOCCO 2: CONFIGURAZIONE SWAN (SCATOLA CALCOLATORE ORIGINALE) -->
-      <div id="block-config" class="block-container hidden">
-        
-        <!-- OPZIONI GLOBALI ERP MASTER -->
-        <div class="view-card" style="margin-bottom:15px; padding:15px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-            <label style="font-weight:600; font-size:0.9rem; display:flex; align-items:center; gap:8px;">
-              <input type="checkbox" id="erp-global-toggle" style="width:18px; height:18px; accent-color:var(--primary);" onchange="toggleErpMasterMaster(this.checked)">
-              Integrazione ERP Master Attiva
-            </label>
-            <input type="text" id="erp-master-name" class="form-control" placeholder="Nome ERP (es. SAP, Metagora, Navision)" style="max-width:250px;" disabled oninput="saveDraftState()">
-          </div>
-        </div>
-
-        <div id="swan-modules-root">
-          <!-- Generato Dinamicamente da Backend Sheet 'Struttura' -->
+          <div style="margin-top: 18px; color: var(--primary); font-weight: 700; font-size: 0.9rem;">Apri Configurazione ➔</div>
         </div>
       </div>
 
     </div>
 
+    <!-- SCHERMATA 3: PAGINA DEDICATA - DETTAGLI AZIENDA (FOCUS MODE) -->
+    <div id="azienda-screen" class="page-screen hidden">
+      <div class="focus-navbar">
+        <button class="btn-back" onclick="showDashboard()">⬅ Torna alla Dashboard</button>
+        <span class="focus-title">🏢 Dettagli Azienda</span>
+      </div>
+
+      <div class="view-card">
+        <div id="azienda-accordion-root">
+          <div class="loading-spinner">Caricamento moduli e domande dal server in corso...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHERMATA 4: PAGINA DEDICATA - CONFIGURAZIONE SWAN (FOCUS MODE) -->
+    <div id="config-screen" class="page-screen hidden">
+      <div class="focus-navbar">
+        <button class="btn-back" onclick="showDashboard()">⬅ Torna alla Dashboard</button>
+        <span class="focus-title">⚙️ Configurazione SWAN</span>
+      </div>
+
+      <!-- OPZIONI GLOBALI ERP MASTER -->
+      <div class="view-card" style="margin-bottom:15px; padding:15px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <label style="font-weight:600; font-size:0.9rem; display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" id="erp-global-toggle" style="width:18px; height:18px; accent-color:var(--primary);" onchange="toggleErpMasterMaster(this.checked)">
+            Integrazione ERP Master Attiva
+          </label>
+          <input type="text" id="erp-master-name" class="form-control" placeholder="Nome ERP (es. SAP, Metagora, Navision)" style="max-width:250px;" disabled oninput="saveDraftState()">
+        </div>
+      </div>
+
+      <div id="swan-modules-root">
+        <div class="loading-spinner">Caricamento funzionalità dal server in corso...</div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- DOCK FLUTTUANTE IN BASSO -->
+  <!-- FLOATING DOCK IN BASSO (SEMPRE ATTIVO DURANTE LA COMPILAZIONE) -->
   <div id="floating-dock" class="dock hidden">
     <div class="dock-info">
       <span id="dock-taglia-badge" class="dock-taglia taglia-S">TAGLIA S</span>
@@ -228,9 +259,10 @@
   <!-- MODALE RIEPILOGO & CONFERMA -->
   <div id="summary-modal" class="modal-overlay">
     <div class="modal-drawer">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+      <div style="text-align:center; margin-bottom:15px;">
+        <!-- LOGO RIEPILOGO MODAL -->
+        <img src="INSERISCI_LINK_LOGO_QUI.png" alt="SWAN Logo" style="max-height: 45px; margin-bottom: 5px;" onerror="this.style.display='none'">
         <h3 style="font-weight:700;">Riepilogo Configurazione</h3>
-        <button onclick="closeSummaryModal()" style="border:none; background:none; font-size:1.4rem; cursor:pointer;">✕</button>
       </div>
       
       <div id="summary-content-body">
@@ -247,6 +279,10 @@
   <!-- MODALE RECUPERO CONFIGURAZIONE -->
   <div id="load-modal" class="modal-overlay">
     <div class="modal-drawer">
+      <div style="text-align:center; margin-bottom:10px;">
+        <!-- LOGO MODAL CARICAMENTO -->
+        <img src="INSERISCI_LINK_LOGO_QUI.png" alt="SWAN Logo" style="max-height: 40px;" onerror="this.style.display='none'">
+      </div>
       <h3 style="font-weight:700; margin-bottom:10px;">Recupera Configurazione Esistente</h3>
       <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:15px;">Inserisci il codice univoco SWAN (es. SWAN-123456) per caricare i dati.</p>
       
@@ -261,7 +297,7 @@
 
   <script>
     // URL SCRIPT BACKEND (GOOGLESCRIPT)
-    const API_URL = "https://script.google.com/macros/s/AKfycbwcwD4v3p3UaU2Zc22S37k0mN6n-hMvhzE_uH4S1A/exec"; // Sarà gestita dall'ambiente di esecuzione Apps Script
+    const API_URL = "https://script.google.com/macros/s/AKfycbwcwD4v3p3UaU2Zc22S37k0mN6n-hMvhzE_uH4S1A/exec";
 
     // STATO APPLICAZIONE
     let globalStructure = [];
@@ -286,7 +322,6 @@
       }
 
       try {
-        // Se Google Apps Script è in esecuzione nativa usa google.script.run, altrimenti via fetch
         if (typeof google !== 'undefined' && google.script && google.script.run) {
           google.script.run.withSuccessHandler(onStructureLoaded).getStructure();
           google.script.run.withSuccessHandler(onAziendaLoaded).getAziendaStructure();
@@ -335,7 +370,6 @@
       const root = document.getElementById("azienda-accordion-root");
       if (!root || !meAziendaStructure.length) return;
 
-      // Raggruppamento per ARGOMENTO -> DOMANDA
       const grouped = {};
       meAziendaStructure.forEach(item => {
         const arg = item.argomento || "Generale";
@@ -387,7 +421,6 @@
             });
             html += `</div>`;
           } else {
-            // Text Input standard
             const inputId = `az_${idx}_${dIdx}_text`;
             html += `
               <input type="text" id="${inputId}" class="form-control" placeholder="Inserisci risposta..." 
@@ -415,7 +448,6 @@
       }
     }
 
-    // VERIFICA E CAMBIO COLORE (VERDINO) SE COMPLETO
     function validateAziendaProgress() {
       let totalArgomenti = 0;
       let completedArgomenti = 0;
@@ -426,7 +458,6 @@
         const inputs = item.querySelectorAll("input");
         let isFilled = false;
 
-        // Controlla se almeno un input dell'argomento è stato selezionato/compilato
         inputs.forEach(inp => {
           if ((inp.type === "checkbox" || inp.type === "radio") && inp.checked) isFilled = true;
           if (inp.type === "text" && inp.value.trim() !== "") isFilled = true;
@@ -455,7 +486,7 @@
       }
     }
 
-    // 3. RENDERING MODULI SWAN (CALCOLATORE IN SCATOLA)
+    // 3. RENDERING MODULI SWAN (CALCOLATORE)
     function renderSwanModules() {
       const root = document.getElementById("swan-modules-root");
       if (!root || !globalStructure.length) return;
@@ -506,7 +537,7 @@
       recalculateTaglia();
     }
 
-    // 4. CALCOLO TAGLIA E GIORNI IN TEMPO REALE
+    // 4. CALCOLO TAGLIA E GIORNI
     function recalculateTaglia() {
       let sviluppo = 0;
       let dati = 0;
@@ -528,21 +559,18 @@
         }
       });
 
-      // Formula Tempo Uomo
       let tempoTotale = (sviluppo + dati + test) + (erpCount * 1.0);
       
       let taglia = "S";
       if (tempoTotale > 10 && tempoTotale <= 25) taglia = "M";
       else if (tempoTotale > 25) taglia = "L";
 
-      // Aggiorna Dock Fluttuante
       const tagliaBadge = document.getElementById("dock-taglia-badge");
       tagliaBadge.textContent = `TAGLIA ${taglia}`;
       tagliaBadge.className = `dock-taglia taglia-${taglia}`;
 
       document.getElementById("dock-days-text").textContent = `${tempoTotale.toFixed(1)} Giorni Uomo`;
 
-      // Aggiorna Hub Badge Configurazione
       const badgeConfig = document.getElementById("badge-config");
       if (badgeConfig) {
         badgeConfig.textContent = `Taglia ${taglia} (${tempoTotale.toFixed(1)} gg)`;
@@ -550,20 +578,20 @@
       }
     }
 
-    // 5. GESTIONE FLUSSO NAVIGAZIONE & BLOCCI
-    function startNewConfig() {
+    // 5. GESTIONE NAVIGAZIONE (FOCUS MODE)
+    function showDashboard() {
       document.getElementById("landing-screen").classList.add("hidden");
-      document.getElementById("app-screen").classList.remove("hidden");
+      document.getElementById("azienda-screen").classList.add("hidden");
+      document.getElementById("config-screen").classList.add("hidden");
+      
+      document.getElementById("dashboard-screen").classList.remove("hidden");
       document.getElementById("floating-dock").classList.remove("hidden");
-      switchBlock('azienda');
     }
 
-    function switchBlock(block) {
-      document.getElementById("block-azienda").classList.toggle("hidden", block !== 'azienda');
-      document.getElementById("block-config").classList.toggle("hidden", block !== 'config');
-
-      document.getElementById("hub-btn-azienda").classList.toggle("active", block === 'azienda');
-      document.getElementById("hub-btn-config").classList.toggle("active", block === 'config');
+    function showFocusPage(pageId) {
+      document.getElementById("dashboard-screen").classList.add("hidden");
+      document.getElementById(pageId).classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function toggleErpMasterMaster(checked) {
@@ -574,7 +602,7 @@
       saveDraftState();
     }
 
-    // 6. CARICAMENTO E SALVATAGGIO BOZZE
+    // 6. CACHE & SALVATAGGIO BOZZA
     function saveDraftState() {
       const data = collectFormData();
       localStorage.setItem("swan_draft", JSON.stringify(data));
@@ -597,7 +625,6 @@
           document.getElementById("erp-master-name").value = data.nome_erp_master || "";
         }
 
-        // Ripristina moduli
         globalStructure.forEach(item => {
           if (data['f_' + item.funzione]) {
             const f = document.getElementById('f_' + item.funzione);
@@ -630,7 +657,6 @@
         dettagli_azienda: {}
       };
 
-      // Raccogli Risposte Dettagli Azienda
       const azInputs = document.querySelectorAll("#azienda-accordion-root input");
       azInputs.forEach(inp => {
         if ((inp.type === "checkbox" || inp.type === "radio") && inp.checked) {
@@ -640,7 +666,6 @@
         }
       });
 
-      // Raccogli Funzioni Moduli SWAN
       globalStructure.forEach(item => {
         const fKey = item.funzione;
         const checkF = document.getElementById('f_' + fKey);
@@ -657,7 +682,7 @@
       return data;
     }
 
-    // 7. INVIO FORM & MODALE RIEPILOGO
+    // 7. INVIO & MODALI
     function validateAnagrafica() {
       const fields = ['input-azienda', 'input-referente', 'input-compilatore', 'input-email'];
       let valid = true;
@@ -676,6 +701,7 @@
     function submitFinalForm() {
       if (!validateAnagrafica()) {
         alert("Per favore, compila tutti i 4 campi anagrafici obbligatori in alto prima di proseguire.");
+        showDashboard();
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
@@ -687,7 +713,7 @@
       const body = document.getElementById("summary-content-body");
 
       body.innerHTML = `
-        <div style="font-size:0.9rem; line-height:1.6;">
+        <div style="font-size:0.9rem; line-height:1.6; background:#F8FAFC; padding:15px; border-radius:8px; border:1px solid #E2E8F0;">
           <p><strong>Azienda:</strong> ${data.azienda}</p>
           <p><strong>Referente:</strong> ${data.referente}</p>
           <p><strong>Email:</strong> ${data.email}</p>
@@ -721,7 +747,7 @@
           onSavedSuccess(result);
         }
       } catch (err) {
-        alert("Errore durante l'inviando i dati: " + err.toString());
+        alert("Errore durante l'invio dei dati: " + err.toString());
       }
     }
 
@@ -735,7 +761,7 @@
       }
     }
 
-    // 8. RECUPERO DA CODICE UNIVOCO
+    // 8. CARICAMENTO DA CODICE
     function showLoadModal() { document.getElementById("load-modal").classList.add("active"); }
     function closeLoadModal() { document.getElementById("load-modal").classList.remove("active"); }
 
@@ -765,7 +791,7 @@
       closeLoadModal();
       currentConfigId = data.config_id || null;
       localStorage.setItem("swan_draft", JSON.stringify(data));
-      startNewConfig();
+      showDashboard();
       restoreDraft();
     }
   </script>
