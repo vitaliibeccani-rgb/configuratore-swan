@@ -95,7 +95,7 @@
     @media (max-width: 640px) { .hub-switcher { grid-template-columns: 1fr; } }
     .hub-box { background: var(--card-bg); border: 2px solid var(--border-color); border-radius: var(--radius-lg); padding: 30px 22px; cursor: pointer; transition: all 0.25s ease; position: relative; text-align: center; }
     .hub-box:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: var(--shadow-lg); }
-    .hub-badge { position: absolute; top: 15px; right: 15px; font-size: 0.55rem; padding: 3px 8px; border-radius: 12px; font-weight: 700; }
+    .hub-badge { position: absolute; top: 15px; right: 15px; font-size: 0.75rem; padding: 4px 10px; border-radius: 12px; font-weight: 700; }
     .hub-badge.pending { background: #FEF3C7; color: #D97706; border: 1px solid #FCD34D; }
     .hub-badge.complete { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
 
@@ -237,7 +237,15 @@
 
       <div style="display: flex; flex-direction: column; gap: 12px; max-width: 350px; margin: 0 auto;">
         <button id="btn-resume-draft" class="btn btn-resume btn-block hidden" onclick="resumeDraft()">↻ Continua la configurazione salvata</button>
-        <button class="btn btn-primary btn-block" onclick="startNewConfig()">➕ Nuova Configurazione</button>
+        <button class="btn btn-primary btn-block" onclick="startNewConfig()">➕ Nuova Configurazione da Zero</button>
+
+        <button class="btn btn-secondary btn-block" onclick="togglePresetChoices()">📦 Parti da un Pacchetto Preimpostato</button>
+        <div id="preset-choices" class="hidden" style="display: flex; gap: 8px;">
+          <button class="btn btn-secondary" style="flex:1;" onclick="startPresetConfig('S')">Taglia S</button>
+          <button class="btn btn-secondary" style="flex:1;" onclick="startPresetConfig('M')">Taglia M</button>
+          <button class="btn btn-secondary" style="flex:1;" onclick="startPresetConfig('L')">Taglia L</button>
+        </div>
+
         <button class="btn btn-secondary btn-block" onclick="showLoadModal()">🔍 Recupera Esistente</button>
       </div>
     </div>
@@ -301,6 +309,17 @@
       <div class="focus-navbar">
         <button class="btn-back" onclick="showDashboard()">⬅ Torna alla Dashboard</button>
         <span class="focus-title">⚙️ Configurazione SWAN</span>
+      </div>
+
+      <div class="view-card" style="margin-bottom:15px; padding:14px 20px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+          <span style="font-weight:700; font-size:0.85rem; color:var(--text-muted);">Applica un preset rapido:</span>
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="btn btn-xs btn-secondary" onclick="applyPreset('S')">Taglia S</button>
+            <button type="button" class="btn btn-xs btn-secondary" onclick="applyPreset('M')">Taglia M</button>
+            <button type="button" class="btn btn-xs btn-secondary" onclick="applyPreset('L')">Taglia L</button>
+          </div>
+        </div>
       </div>
 
       <div class="view-card" style="margin-bottom:15px; padding:18px 20px;">
@@ -440,6 +459,35 @@
       showDashboard();
     }
 
+    function togglePresetChoices() {
+      document.getElementById("preset-choices").classList.toggle("hidden");
+    }
+
+    function startPresetConfig(tier) {
+      startNewConfig();
+      applyPreset(tier);
+    }
+
+    // Pre-seleziona le funzioni marcate per la taglia scelta nel foglio "Struttura"
+    // (colonne In_Preset_S / In_Preset_M / In_Preset_L). Resta sempre modificabile liberamente:
+    // è un punto di partenza, non un vincolo — la taglia reale si ricalcola dalle funzioni spuntate.
+    function applyPreset(tier) {
+      const field = tier === 'S' ? 'presetS' : (tier === 'M' ? 'presetM' : 'presetL');
+      globalStructure.forEach(item => {
+        const cb = document.getElementById('f_' + item.funzione);
+        if (!cb) return;
+        const shouldCheck = !!item[field];
+        cb.checked = shouldCheck;
+        const card = document.getElementById('card_f_' + item.funzione);
+        if (card) {
+          card.classList.toggle('is-selected', shouldCheck);
+          card.setAttribute('aria-checked', shouldCheck ? 'true' : 'false');
+        }
+      });
+      recalculateTaglia();
+      saveDraftState();
+    }
+
     /* 1. DETTAGLI AZIENDA CON GESTIONE CASSA TESTO "ALTRO" */
     let clientLogoDataUrl = null;
 
@@ -523,7 +571,8 @@
 
           html += `<div style="margin-top:15px;"><div style="font-weight:600; font-size:0.9rem;">${dom} ${isReq?'<span class="badge-req">Obbligatorio</span>':''}</div>`;
 
-          const domLabel = escAttr(`${arg} — ${dom}`);
+          const argAttr = escAttr(arg);
+          const domAttr = escAttr(dom);
 
           if (inputType === "checkbox" || inputType === "radio" || inputType === "multi choice") {
             html += `<div class="az-options-grid">`;
@@ -534,7 +583,7 @@
 
               html += `<div>
                 <label class="az-option-label">
-                  <input type="${inputType === 'checkbox' ? 'checkbox' : 'radio'}" name="${fieldName}" id="${inpId}" value="${opt.opzione}" data-domanda="${domLabel}" onchange="toggleAltroText('${inpId}_txt', this.checked); validateAzProgress(); saveDraftState();">
+                  <input type="${inputType === 'checkbox' ? 'checkbox' : 'radio'}" name="${fieldName}" id="${inpId}" value="${opt.opzione}" data-argomento="${argAttr}" data-domanda="${domAttr}" onchange="toggleAltroText('${inpId}_txt', this.checked); validateAzProgress(); saveDraftState();">
                   <span>${opt.opzione}</span>
                 </label>
                 ${isAltro ? `<input type="text" id="${inpId}_txt" class="az-altro-input hidden" placeholder="Specificare..." oninput="saveDraftState()">` : ''}
@@ -542,7 +591,7 @@
             });
             html += `</div>`;
           } else {
-            html += `<input type="text" id="az_${idx}_${dIdx}_text" class="form-control" data-domanda="${domLabel}" style="margin-top:5px;" oninput="validateAzProgress(); saveDraftState();">`;
+            html += `<input type="text" id="az_${idx}_${dIdx}_text" class="form-control" data-argomento="${argAttr}" data-domanda="${domAttr}" style="margin-top:5px;" oninput="validateAzProgress(); saveDraftState();">`;
           }
           html += `</div>`;
         });
@@ -783,9 +832,11 @@
 
         if (data.dettagli_azienda) {
           document.querySelectorAll("#azienda-accordion-root input[data-domanda]").forEach(inp => {
+            const argomento = inp.dataset.argomento || "Generale";
             const domanda = inp.dataset.domanda;
-            if (!(domanda in data.dettagli_azienda)) return;
-            const storedParts = String(data.dettagli_azienda[domanda]).split(", ");
+            const argData = data.dettagli_azienda[argomento];
+            if (!argData || !(domanda in argData)) return;
+            const storedParts = String(argData[domanda]).split(", ");
 
             if (inp.type === "checkbox" || inp.type === "radio") {
               const match = storedParts.find(p => p === inp.value || p.indexOf(inp.value + ":") === 0);
@@ -797,7 +848,7 @@
                 }
               }
             } else {
-              inp.value = data.dettagli_azienda[domanda];
+              inp.value = argData[domanda];
             }
           });
         }
@@ -850,19 +901,27 @@
 
       const azMap = {};
       document.querySelectorAll("#azienda-accordion-root input[data-domanda]").forEach(inp => {
+        const argomento = inp.dataset.argomento || "Generale";
         const domanda = inp.dataset.domanda;
+        if (!azMap[argomento]) azMap[argomento] = {};
+
         if (inp.type === "checkbox" || inp.type === "radio") {
           if (inp.checked) {
             let val = inp.value;
             const txt = document.getElementById(`${inp.id}_txt`);
             if (txt && txt.value.trim() !== "") val += `: ${txt.value.trim()}`;
-            (azMap[domanda] = azMap[domanda] || []).push(val);
+            (azMap[argomento][domanda] = azMap[argomento][domanda] || []).push(val);
           }
         } else if (inp.value.trim() !== "") {
-          azMap[domanda] = [inp.value.trim()];
+          azMap[argomento][domanda] = [inp.value.trim()];
         }
       });
-      Object.keys(azMap).forEach(d => { data.dettagli_azienda[d] = azMap[d].join(", "); });
+      Object.keys(azMap).forEach(arg => {
+        data.dettagli_azienda[arg] = {};
+        Object.keys(azMap[arg]).forEach(dom => {
+          data.dettagli_azienda[arg][dom] = azMap[arg][dom].join(", ");
+        });
+      });
 
       globalStructure.forEach(item => {
         const fKey = item.funzione;
