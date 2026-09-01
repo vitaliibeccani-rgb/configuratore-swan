@@ -64,6 +64,13 @@
     .btn-secondary:hover { background-color: #E2E8F0; }
     .btn-resume { background-color: var(--success); color: white; }
     .btn-resume:hover { background-color: #0EA271; }
+
+    .btn-preset-s { background: #DCFCE7; color: #15803D; border: 1.5px solid #86EFAC; font-weight: 700; }
+    .btn-preset-s:hover { background: #BBF7D0; }
+    .btn-preset-m { background: #FEF3C7; color: #B45309; border: 1.5px solid #FCD34D; font-weight: 700; }
+    .btn-preset-m:hover { background: #FDE68A; }
+    .btn-preset-l { background: #FEE2E2; color: #B91C1C; border: 1.5px solid #FCA5A5; font-weight: 700; }
+    .btn-preset-l:hover { background: #FECACA; }
     .btn-xs { padding: 4px 8px; font-size: 0.75rem; border-radius: 6px; }
     .btn-block { width: 100%; }
 
@@ -214,6 +221,10 @@
 
     .hidden { display: none !important; }
     .badge-req { font-size: 0.7rem; background: #FEE2E2; color: #DC2626; padding: 2px 6px; border-radius: 4px; }
+
+    .loading-overlay { position: fixed; inset: 0; background: rgba(244, 247, 249, 0.92); backdrop-filter: blur(3px); z-index: 500; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 20px; text-align: center; }
+    .spinner { width: 46px; height: 46px; border: 4px solid var(--border-color); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -221,7 +232,7 @@
   <!-- HEADER -->
   <header>
     <div class="header-logos">
-      <img src="" alt="SWAN Logo" class="header-logo" onerror="this.style.display='none'">
+      <img src="INSERISCI_LINK_LOGO_QUI.png" alt="SWAN Logo" class="header-logo" onerror="this.style.display='none'">
       <img id="header-client-logo" class="header-logo hidden" alt="Logo Cliente">
     </div>
     <h1>CONFIGURATORE SWAN</h1>
@@ -241,9 +252,9 @@
 
         <button class="btn btn-secondary btn-block" onclick="togglePresetChoices()">📦 Parti da un Pacchetto Preimpostato</button>
         <div id="preset-choices" class="hidden" style="display: flex; gap: 8px;">
-          <button class="btn btn-secondary" style="flex:1;" onclick="startPresetConfig('S')">Taglia S</button>
-          <button class="btn btn-secondary" style="flex:1;" onclick="startPresetConfig('M')">Taglia M</button>
-          <button class="btn btn-secondary" style="flex:1;" onclick="startPresetConfig('L')">Taglia L</button>
+          <button class="btn btn-preset-s" style="flex:1;" onclick="startPresetConfig('S')">Taglia S</button>
+          <button class="btn btn-preset-m" style="flex:1;" onclick="startPresetConfig('M')">Taglia M</button>
+          <button class="btn btn-preset-l" style="flex:1;" onclick="startPresetConfig('L')">Taglia L</button>
         </div>
 
         <button class="btn btn-secondary btn-block" onclick="showLoadModal()">🔍 Recupera Esistente</button>
@@ -315,9 +326,9 @@
         <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
           <span style="font-weight:700; font-size:0.85rem; color:var(--text-muted);">Applica un preset rapido:</span>
           <div style="display:flex; gap:8px;">
-            <button type="button" class="btn btn-xs btn-secondary" onclick="applyPreset('S')">Taglia S</button>
-            <button type="button" class="btn btn-xs btn-secondary" onclick="applyPreset('M')">Taglia M</button>
-            <button type="button" class="btn btn-xs btn-secondary" onclick="applyPreset('L')">Taglia L</button>
+            <button type="button" class="btn btn-xs btn-preset-s" onclick="applyPreset('S')">Taglia S</button>
+            <button type="button" class="btn btn-xs btn-preset-m" onclick="applyPreset('M')">Taglia M</button>
+            <button type="button" class="btn btn-xs btn-preset-l" onclick="applyPreset('L')">Taglia L</button>
           </div>
         </div>
       </div>
@@ -990,19 +1001,29 @@
     async function executeFinalSubmit() {
       closeSummaryModal();
       const payload = collectFormData();
+      showLoadingOverlay();
 
       try {
         if (typeof google !== 'undefined' && google.script && google.script.run) {
-          google.script.run.withSuccessHandler(onSavedSuccess).processForm(payload);
+          google.script.run.withSuccessHandler(onSavedSuccess).withFailureHandler(onSaveFailed).processForm(payload);
         } else {
           const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
           const result = await res.json();
           onSavedSuccess(result);
         }
-      } catch (err) { alert("Errore invio: " + err.toString()); }
+      } catch (err) { onSaveFailed(err); }
+    }
+
+    function showLoadingOverlay() { document.getElementById("loading-overlay").classList.remove("hidden"); }
+    function hideLoadingOverlay() { document.getElementById("loading-overlay").classList.add("hidden"); }
+
+    function onSaveFailed(err) {
+      hideLoadingOverlay();
+      alert("Errore invio: " + err.toString());
     }
 
     function onSavedSuccess(res) {
+      hideLoadingOverlay();
       if (res && res.status === "success") {
         localStorage.removeItem("swan_draft");
         document.getElementById("success-code-display").textContent = res.id || "SWAN-COMPLETED";
@@ -1029,6 +1050,12 @@
         }
       } catch(e) { alert("Errore nel recupero della configurazione."); }
     }
-  </script>
+  </script>  <!-- OVERLAY DI CARICAMENTO DURANTE IL SALVATAGGIO -->
+  <div id="loading-overlay" class="loading-overlay hidden">
+    <div class="spinner"></div>
+    <p style="font-weight: 700; color: var(--text-dark); margin-top: 4px;">Salvataggio in corso...</p>
+    <p style="font-size: 0.85rem; color: var(--text-muted); max-width: 260px; text-align: center;">Stiamo generando il PDF e inviando la mail di riepilogo, può richiedere qualche secondo.</p>
+  </div>
+
 </body>
 </html>
