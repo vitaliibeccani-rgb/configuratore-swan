@@ -67,23 +67,23 @@
 
         <!-- CARD DI SINTESI -->
         <div class="dash-stats-grid">
-          <div class="dash-stat-card dash-stat-total">
+          <div class="dash-stat-card dash-stat-total dash-stat-clickable" onclick="openDrillDown(null, null, 'Tutte le configurazioni')">
             <span class="dash-stat-label">Totale Configurazioni</span>
             <span class="dash-stat-value" id="stat-totale">0</span>
           </div>
-          <div class="dash-stat-card">
+          <div class="dash-stat-card dash-stat-clickable" onclick="openDrillDown(null, 'scratch', 'Configurazioni da zero')">
             <span class="dash-stat-label">Da Zero</span>
             <span class="dash-stat-value" id="stat-scratch">0</span>
           </div>
-          <div class="dash-stat-card dash-stat-s">
+          <div class="dash-stat-card dash-stat-s dash-stat-clickable" onclick="openDrillDown(null, 'preset_S', 'Configurazioni da Preset S')">
             <span class="dash-stat-label">Preset S</span>
             <span class="dash-stat-value" id="stat-preset-s">0</span>
           </div>
-          <div class="dash-stat-card dash-stat-m">
+          <div class="dash-stat-card dash-stat-m dash-stat-clickable" onclick="openDrillDown(null, 'preset_M', 'Configurazioni da Preset M')">
             <span class="dash-stat-label">Preset M</span>
             <span class="dash-stat-value" id="stat-preset-m">0</span>
           </div>
-          <div class="dash-stat-card dash-stat-l">
+          <div class="dash-stat-card dash-stat-l dash-stat-clickable" onclick="openDrillDown(null, 'preset_L', 'Configurazioni da Preset L')">
             <span class="dash-stat-label">Preset L</span>
             <span class="dash-stat-value" id="stat-preset-l">0</span>
           </div>
@@ -112,6 +112,16 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- MODALE DRILL-DOWN -->
+  <div id="drilldown-modal" class="modal-overlay">
+    <div class="modal-drawer" style="max-width: 700px;">
+      <div class="drawer-handle"></div>
+      <h3 id="drilldown-title" style="font-weight: 700; margin-bottom: 14px;">Configurazioni</h3>
+      <div id="drilldown-list" class="dash-drilldown-list"></div>
+      <button class="btn btn-secondary btn-block" style="margin-top: 16px;" onclick="closeDrillDown()">Chiudi</button>
+    </div>
   </div>
 
   <script src="dashboard.js" defer></script>
