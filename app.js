@@ -3,6 +3,8 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxNFuhBMPBn9g1ZhVLybwrT
     const GOOGLE_CLIENT_ID = "502671012765-qupbn2bnhhovfsjlb375c6mlhhalbpcf.apps.googleusercontent.com";
     let globalStructure = [], meAziendaStructure = [], currentConfigId = null, isConfigLoadedLocked = false;
     let googleIdToken = null;
+    let configOrigin = "scratch"; // "scratch" | "preset_S" | "preset_M" | "preset_L"
+    let presetInitialFunctions = []; // istantanea delle funzioni spuntate al momento dell'applicazione del preset
 
     document.addEventListener("DOMContentLoaded", () => {
       const savedToken = sessionStorage.getItem("swan_google_token");
@@ -101,6 +103,8 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxNFuhBMPBn9g1ZhVLybwrT
     function startNewConfig() {
       isConfigLoadedLocked = false;
       currentConfigId = null;
+      configOrigin = "scratch";
+      presetInitialFunctions = [];
       ['input-azienda','input-referente','input-compilatore','input-email'].forEach(id => {
         const el = document.getElementById(id);
         el.disabled = false;
@@ -125,17 +129,21 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxNFuhBMPBn9g1ZhVLybwrT
     // è un punto di partenza, non un vincolo — la taglia reale si ricalcola dalle funzioni spuntate.
     function applyPreset(tier) {
       const field = tier === 'S' ? 'presetS' : (tier === 'M' ? 'presetM' : 'presetL');
+      const checkedFunctions = [];
       globalStructure.forEach(item => {
         const cb = document.getElementById('f_' + item.funzione);
         if (!cb) return;
         const shouldCheck = !!item[field];
         cb.checked = shouldCheck;
+        if (shouldCheck) checkedFunctions.push(item.funzione);
         const card = document.getElementById('card_f_' + item.funzione);
         if (card) {
           card.classList.toggle('is-selected', shouldCheck);
           card.setAttribute('aria-checked', shouldCheck ? 'true' : 'false');
         }
       });
+      configOrigin = "preset_" + tier;
+      presetInitialFunctions = checkedFunctions;
       recalculateTaglia();
       saveDraftState();
     }
@@ -151,6 +159,8 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxNFuhBMPBn9g1ZhVLybwrT
         const card = document.getElementById('card_f_' + item.funzione);
         if (card) { card.classList.remove('is-selected'); card.setAttribute('aria-checked', 'false'); }
       });
+      configOrigin = "scratch";
+      presetInitialFunctions = [];
       recalculateTaglia();
       saveDraftState();
     }
@@ -492,6 +502,8 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxNFuhBMPBn9g1ZhVLybwrT
       if (!draft) return;
       try {
         const data = JSON.parse(draft);
+        if (data.config_origin) configOrigin = data.config_origin;
+        if (Array.isArray(data.preset_initial_functions_snapshot)) presetInitialFunctions = data.preset_initial_functions_snapshot;
         if (data.azienda) document.getElementById("input-azienda").value = data.azienda;
         if (data.referente) document.getElementById("input-referente").value = data.referente;
         if (data.compilatore) document.getElementById("input-compilatore").value = data.compilatore;
@@ -605,6 +617,23 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxNFuhBMPBn9g1ZhVLybwrT
           if (noteN && noteN.value.trim() !== "") data['n_' + fKey] = noteN.value.trim();
         }
       });
+
+      // Tracciamento origine configurazione: da zero o partita da un preset S/M/L,
+      // e in tal caso cosa è stato aggiunto/tolto rispetto al pacchetto di partenza.
+      data.config_origin = configOrigin;
+      data.preset_initial_functions_snapshot = presetInitialFunctions;
+      if (configOrigin !== "scratch") {
+        const finalFunctions = [];
+        globalStructure.forEach(item => {
+          const cb = document.getElementById('f_' + item.funzione);
+          if (cb && cb.checked) finalFunctions.push(item.funzione);
+        });
+        data.funzioni_aggiunte_vs_preset = finalFunctions.filter(f => !presetInitialFunctions.includes(f)).join(", ");
+        data.funzioni_rimosse_vs_preset = presetInitialFunctions.filter(f => !finalFunctions.includes(f)).join(", ");
+      } else {
+        data.funzioni_aggiunte_vs_preset = "";
+        data.funzioni_rimosse_vs_preset = "";
+      }
 
       return data;
     }
