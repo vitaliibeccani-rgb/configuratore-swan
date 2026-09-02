@@ -4,6 +4,8 @@ const GOOGLE_CLIENT_ID = "502671012765-qupbn2bnhhovfsjlb375c6mlhhalbpcf.apps.goo
 
 let googleIdToken = null;
 let originChart = null;
+let currentRangeStart = null;
+let currentRangeEnd = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   const savedToken = sessionStorage.getItem("swan_google_token");
@@ -103,6 +105,8 @@ function applyCustomRange() {
 async function fetchStats(start, end) {
   document.getElementById("dash-loading").classList.remove("hidden");
   document.getElementById("dash-body").classList.add("hidden");
+  currentRangeStart = start;
+  currentRangeEnd = end;
 
   try {
     let url = `${API_URL}?action=getDashboardStats&id_token=${encodeURIComponent(googleIdToken || "")}`;
@@ -159,6 +163,8 @@ function renderOriginChart(scratch, presetS, presetM, presetL) {
   emptyMsg.classList.add("hidden");
 
   const ctx = canvas.getContext("2d");
+  const originKeys = ["scratch", "preset_S", "preset_M", "preset_L"];
+  const originLabels = { scratch: "Configurazioni da zero", preset_S: "Configurazioni da Preset S", preset_M: "Configurazioni da Preset M", preset_L: "Configurazioni da Preset L" };
   const chartData = {
     labels: ["Da Zero", "Preset S", "Preset M", "Preset L"],
     datasets: [{
@@ -179,6 +185,11 @@ function renderOriginChart(scratch, presetS, presetM, presetL) {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        onClick: (evt, elements) => {
+          if (!elements || elements.length === 0) return;
+          const key = originKeys[elements[0].index];
+          openDrillDown(null, key, originLabels[key]);
+        },
         plugins: {
           legend: { position: "bottom", labels: { font: { family: "Inter" }, padding: 14 } }
         }
@@ -213,4 +224,71 @@ function escapeHtml(str) {
   const d = document.createElement('div');
   d.textContent = str || '';
   return d.innerHTML;
+}
+
+// ==========================================
+// DRILL-DOWN: elenco configurazioni per taglia/origine, con link al PDF
+// ==========================================
+async function openDrillDown(filterTaglia, filterOrigine, title) {
+  document.getElementById("drilldown-title").textContent = title || "Configurazioni";
+  document.getElementById("drilldown-list").innerHTML = `<p class="dash-rank-empty">Caricamento...</p>`;
+  document.getElementById("drilldown-modal").classList.add("active");
+
+  try {
+    let url = `${API_URL}?action=getConfigsList&id_token=${encodeURIComponent(googleIdToken || "")}`;
+    if (currentRangeStart) url += `&start=${encodeURIComponent(currentRangeStart)}`;
+    if (currentRangeEnd) url += `&end=${encodeURIComponent(currentRangeEnd)}`;
+    if (filterTaglia) url += `&taglia=${encodeURIComponent(filterTaglia)}`;
+    if (filterOrigine) url += `&origine=${encodeURIComponent(filterOrigine)}`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.status === "error" && /autorizzat/i.test(data.message || "")) {
+      handleAuthRejection(data.message);
+      return;
+    }
+
+    renderDrillDownList(data);
+  } catch (err) {
+    document.getElementById("drilldown-list").innerHTML = `<p class="dash-rank-empty">Errore nel caricamento: ${escapeHtml(err.toString())}</p>`;
+  }
+}
+
+function closeDrillDown() {
+  document.getElementById("drilldown-modal").classList.remove("active");
+}
+
+const tagliaColorMap = { S: "#10B981", M: "#F59E0B", L: "#EF4444" };
+const origineLabelMap = { scratch: "Da zero", preset_S: "Preset S", preset_M: "Preset M", preset_L: "Preset L" };
+
+function renderDrillDownList(items) {
+  const container = document.getElementById("drilldown-list");
+  if (!items || items.length === 0) {
+    container.innerHTML = `<p class="dash-rank-empty">Nessuna configurazione trovata per questo filtro.</p>`;
+    return;
+  }
+
+  let html = "";
+  items.forEach(item => {
+    const tagliaColor = tagliaColorMap[item.taglia] || "#64748b";
+    const origineLabel = origineLabelMap[item.origine] || item.origine;
+    const rightContent = item.pdfUrl
+      ? `<span class="dash-drilldown-badge" style="background:${tagliaColor};">Taglia ${escapeHtml(item.taglia)}</span><span style="font-size:0.78rem; color:var(--primary); font-weight:700;">Apri PDF ↗</span>`
+      : `<span class="dash-drilldown-badge" style="background:${tagliaColor};">Taglia ${escapeHtml(item.taglia)}</span><span class="dash-drilldown-nolink">PDF non disponibile</span>`;
+
+    const tag = item.pdfUrl ? "a" : "div";
+    const hrefAttr = item.pdfUrl ? `href="${escapeHtml(item.pdfUrl)}" target="_blank"` : "";
+
+    html += `
+      <${tag} ${hrefAttr} class="dash-drilldown-row">
+        <div class="dash-drilldown-info">
+          <span class="dash-drilldown-azienda">${escapeHtml(item.azienda)}</span>
+          <span class="dash-drilldown-meta">${escapeHtml(item.id)} · ${escapeHtml(item.referente || "-")} · ${escapeHtml(item.dataOra)} · ${escapeHtml(origineLabel)} · ${item.giorni ? Number(item.giorni).toFixed(1) + " gg" : ""}</span>
+        </div>
+        <div class="dash-drilldown-right">${rightContent}</div>
+      </${tag}>
+    `;
+  });
+  container.innerHTML = html;
 }
