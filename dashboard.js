@@ -54,6 +54,20 @@ function handleAuthRejection(message) {
   initGoogleSignIn();
 }
 
+// Come fetch(url).json(), ma se il server risponde con HTML invece che JSON (es. Apps Script
+// non ridistribuito, errore di permessi, pagina di accesso Google) dà un messaggio leggibile
+// invece del criptico "Unexpected token '<' is not valid JSON".
+async function fetchJsonSafe(url) {
+  const res = await fetch(url);
+  const rawText = await res.text();
+  try {
+    return JSON.parse(rawText);
+  } catch (e) {
+    const preview = rawText.trim().slice(0, 120).replace(/\s+/g, " ");
+    throw new Error(`Il server non ha risposto con dati validi (probabile problema di distribuzione Apps Script — ricontrolla di aver ridistribuito una nuova versione). Anteprima risposta: "${preview}..."`);
+  }
+}
+
 // ==========================================
 // FILTRI DATA
 // ==========================================
@@ -113,8 +127,7 @@ async function fetchStats(start, end) {
     if (start) url += `&start=${encodeURIComponent(start)}`;
     if (end) url += `&end=${encodeURIComponent(end)}`;
 
-    const res = await fetch(url);
-    const data = await res.json();
+    const data = await fetchJsonSafe(url);
 
     if (data.status === "error" && /autorizzat/i.test(data.message || "")) {
       handleAuthRejection(data.message);
@@ -123,7 +136,7 @@ async function fetchStats(start, end) {
 
     renderStats(data);
   } catch (err) {
-    alert("Errore nel caricamento delle statistiche: " + err.toString());
+    alert("Errore nel caricamento delle statistiche: " + err.message);
   } finally {
     document.getElementById("dash-loading").classList.add("hidden");
     document.getElementById("dash-body").classList.remove("hidden");
@@ -241,8 +254,7 @@ async function openDrillDown(filterTaglia, filterOrigine, title) {
     if (filterTaglia) url += `&taglia=${encodeURIComponent(filterTaglia)}`;
     if (filterOrigine) url += `&origine=${encodeURIComponent(filterOrigine)}`;
 
-    const res = await fetch(url);
-    const data = await res.json();
+    const data = await fetchJsonSafe(url);
 
     if (data.status === "error" && /autorizzat/i.test(data.message || "")) {
       handleAuthRejection(data.message);
@@ -251,7 +263,7 @@ async function openDrillDown(filterTaglia, filterOrigine, title) {
 
     renderDrillDownList(data);
   } catch (err) {
-    document.getElementById("drilldown-list").innerHTML = `<p class="dash-rank-empty">Errore nel caricamento: ${escapeHtml(err.toString())}</p>`;
+    document.getElementById("drilldown-list").innerHTML = `<p class="dash-rank-empty">Errore nel caricamento: ${escapeHtml(err.message)}</p>`;
   }
 }
 
